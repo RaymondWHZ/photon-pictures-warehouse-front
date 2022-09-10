@@ -10,12 +10,12 @@ const NavBar: React.FC = () => {
       </div>
       <div style={{ flex: 1, display: "flex", justifyContent: "center" }}>
         <Link href={"/"}>
-          <a style={{ fontFamily: "Ma Shan Zheng", fontSize: "28px" }}>器材库</a>
+          <a style={{ fontFamily: "Ma Shan Zheng", fontSize: "28px", color: "white" }}>器材库</a>
         </Link>
       </div>
       <div style={{ width: "100px" }}>
         <Link href={"/"}>
-          <a style={{ fontWeight: "bold" }}>器材库使用须知</a>
+          <a style={{ fontWeight: "bold", color: "white" }}>器材库使用须知</a>
         </Link>
       </div>
     </div>
