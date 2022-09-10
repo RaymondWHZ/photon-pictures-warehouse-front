@@ -13,7 +13,7 @@ const query = `
     type,
     status
   },
-  "reservations": *[_type == "reservation" && !(_id in path("drafts.**")) && kit._ref == $id && status in ["passed", "in-use"]] {
+  "reservations": *[_type == "reservation" && !(_id in path("drafts.**")) && kit._ref == $id && status in ["passed", "in-use", "exception"]] {
     startDate,
     endDate
   }
@@ -21,7 +21,7 @@ const query = `
 `
 
 type Data = {
-  kit: Kit[],
+  kit: Kit,
   reservation: ReservationSlot[],
 }
 

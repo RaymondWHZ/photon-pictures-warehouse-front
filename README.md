@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This project is the frontend of the warehouse management system. 
+This project is the frontend of photon pictures warehouse management system.
 
 ## Usage
 
@@ -13,6 +13,7 @@ NEXT_PUBLIC_SANITY_PROJECT_ID=
 NEXT_PUBLIC_SANITY_DATASET=
 SANITY_TOKEN=
 SENDGRID_API_KEY=
+SENDGRID_EMAIL=
 ```
 
 The file .env.local will not be uploaded to GitHub, and the variables should be set during deployment.
