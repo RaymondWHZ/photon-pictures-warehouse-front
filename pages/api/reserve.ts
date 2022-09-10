@@ -31,7 +31,7 @@ export default async function handler(
 
   const msg = {
     to: reservation.email,
-    from: 'wuhaozhen1106@gmail.com',
+    from: process.env.SENDGRID_EMAIL,
     subject: '光子映画器材库已收到你的预约',
     text: `
     你的预约已被光子映画器材库收到，内容如下：
