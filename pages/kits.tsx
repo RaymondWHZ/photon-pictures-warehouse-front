@@ -44,7 +44,7 @@ const KitCard: React.FC<{ kit: KitOverview }> = ({ kit }) => {
   )
 }
 
-const Home: NextPage = () => {
+const Kits: NextPage = () => {
   const { data } = useAllKits()
   if (!data) {
     return (
@@ -66,4 +66,4 @@ const Home: NextPage = () => {
   )
 }
 
-export default Home
+export default Kits

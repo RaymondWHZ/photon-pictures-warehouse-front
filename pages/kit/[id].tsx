@@ -101,7 +101,7 @@ const ContactModal: React.FC<{ borrowInfo: any, onClose: () => void }> = ({ borr
           title="申请提交成功"
           subTitle="请微信联系器材库管理人员"
           extra={[
-            <Button onClick={onCloseCancel}>关闭窗口</Button>
+            <Button key={0} onClick={onCloseCancel}>关闭窗口</Button>
           ]}
         />
         :
@@ -166,7 +166,7 @@ const BorrowCard: React.FC<{ kit: Kit, reservations: ReservationSlot[] }> = ({ k
           </SubTitle>
           <PortableText value={kit.rules}/>
           <Checkbox style={{ marginBottom: "8px" }} checked={agreed} onChange={e => setAgreed(e.target.checked)}>
-              我已阅读并同意借用规则和<a href={"/"} target="_blank">器材库使用说明</a>
+              我已阅读并同意借用规则和<a href={"/"} target="_blank" rel="noreferrer">器材库使用说明</a>
           </Checkbox>
           <Form.Item style={{ width: "100%" }}>
               <Button type="primary" htmlType="submit" style={{ width: "100%" }} disabled={!agreed}>
@@ -183,7 +183,7 @@ const BorrowCard: React.FC<{ kit: Kit, reservations: ReservationSlot[] }> = ({ k
   )
 }
 
-export default () => {
+const KitDetail = () => {
   const router = useRouter()
   const { id } = router.query
   const { data } = useKitDetail(id as string)
@@ -212,3 +212,5 @@ export default () => {
     </div>
   )
 }
+
+export default KitDetail

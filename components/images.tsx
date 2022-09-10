@@ -19,8 +19,8 @@ export const KitImages: React.FC<KitImagesProps> = ({ images, width, height }) =
         style={{ width }}
         afterChange={setIndex}
       >
-        {images?.map(image => (
-          <div>
+        {images?.map((image, index) => (
+          <div key={index}>
             <Image
               src={urlFor(image)}
               width={width}
@@ -34,8 +34,8 @@ export const KitImages: React.FC<KitImagesProps> = ({ images, width, height }) =
       </Carousel>
       <div style={{ display: 'none' }}>
         <Image.PreviewGroup preview={{ visible, onVisibleChange: vis => setVisible(vis), current: index }}>
-          {images?.map(image => (
-            <Image src={urlFor(image)} />
+          {images?.map((image, index) => (
+            <Image key={index} src={urlFor(image)} />
           ))}
         </Image.PreviewGroup>
       </div>

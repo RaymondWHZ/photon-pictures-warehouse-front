@@ -30,7 +30,7 @@ const Footer = () => {
   )
 }
 
-export default ({ children }: React.PropsWithChildren<{}>) => {
+const Layout = ({ children }: React.PropsWithChildren<{}>) => {
   return (
     <>
       <NavBar/>
@@ -41,3 +41,5 @@ export default ({ children }: React.PropsWithChildren<{}>) => {
     </>
   )
 }
+
+export default Layout

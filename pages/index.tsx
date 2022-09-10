@@ -3,7 +3,7 @@ import {useSettings} from "../util/services";
 import {Button, Divider, Skeleton} from "antd";
 import Link from "next/link";
 
-export default () => {
+const Home = () => {
   const { data: settings } = useSettings()
 
   return (
@@ -37,3 +37,5 @@ export default () => {
     </div>
   )
 }
+
+export default Home
