@@ -31,7 +31,7 @@ const Home = () => {
             </div>
           </>
           :
-          <Skeleton/>
+          <Skeleton active/>
         }
       </div>
     </div>

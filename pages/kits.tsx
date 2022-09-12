@@ -1,5 +1,5 @@
 import type { NextPage } from 'next'
-import {Card, Col, Row, Spin, Typography} from "antd";
+import {Card, Col, Row, Typography} from "antd";
 import React from "react";
 import Meta from "antd/lib/card/Meta";
 import Link from "next/link";
@@ -8,6 +8,17 @@ import {KitOverview} from "../types/types";
 import {toPlainText} from "@portabletext/react";
 import {urlFor} from "../util/utils";
 import {KitStatusTag, KitTypeTag} from "../components/tags";
+
+const KitCardSkeleton: React.FC = () => (
+  <Card
+    hoverable
+    cover={
+      <div style={{ height: "200px", background: "#f0f0f0" }}/>
+    }
+    style={{ width: "300px", height: "389px", margin: "20px" }}
+    loading
+  />
+)
 
 const KitCard: React.FC<{ kit: KitOverview }> = ({ kit }) => {
   return (
@@ -45,21 +56,22 @@ const KitCard: React.FC<{ kit: KitOverview }> = ({ kit }) => {
 
 const Kits: NextPage = () => {
   const { data } = useAllKits()
-  if (!data) {
-    return (
-      <div style={{ display: "flex", justifyContent: "center", padding: "30px" }}>
-        <Spin size="large"/>
-      </div>
-    )
-  }
   return (
     <div style={{ display: "flex", justifyContent: "center", padding: "30px" }}>
       <Row gutter={[8, 8]} style={{ maxWidth: "1000px", flex: 1 }}>
-        {data.map((kit: KitOverview) => (
-          <Col key={kit._id} span={24} md={12} lg={8} style={{ display: "flex", justifyContent: "center" }}>
-            <KitCard kit={kit}/>
-          </Col>
-        ))}
+        {data ?
+          data.map((kit: KitOverview) => (
+            <Col key={kit._id} span={24} md={12} lg={8} style={{ display: "flex", justifyContent: "center" }}>
+              <KitCard kit={kit}/>
+            </Col>
+          ))
+          :
+          [1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+            <Col key={i} span={24} md={12} lg={8} style={{ display: "flex", justifyContent: "center" }}>
+              <KitCardSkeleton/>
+            </Col>
+          ))
+        }
       </Row>
     </div>
   )
