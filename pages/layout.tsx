@@ -3,8 +3,8 @@ import Link from "next/link";
 
 const NavBar: React.FC = () => {
   return (
-    <div style={{ position: "fixed", top: 0, width: "100%", height: "70px", background: "black", color: "white", zIndex: 1000,
-                  display: "flex", alignItems: "center", paddingLeft: "30px", paddingRight: "30px"}}>
+    <div style={{ position: "fixed", top: 0, width: "100%", height: "65px", background: "black", color: "white", zIndex: 1000,
+                  display: "flex", alignItems: "center", paddingLeft: "30px", paddingRight: "40px"}}>
       <div style={{ width: "100px" }}>
         <img src={"/logo.png"} height="50px" alt=""/>
       </div>
@@ -13,7 +13,7 @@ const NavBar: React.FC = () => {
           <a style={{ fontFamily: "Ma Shan Zheng", fontSize: "28px", color: "white" }}>器材库</a>
         </Link>
       </div>
-      <div style={{ width: "100px" }}>
+      <div style={{ width: "120px", textAlign: "right" }}>
         <Link href={"/"}>
           <a style={{ fontWeight: "bold", color: "white" }}>器材库使用须知</a>
         </Link>
@@ -34,7 +34,7 @@ const Layout = ({ children }: React.PropsWithChildren<{}>) => {
   return (
     <>
       <NavBar/>
-      <div style={{ paddingTop: "70px" }}>
+      <div style={{ paddingTop: "65px" }}>
         {children}
       </div>
       <Footer/>

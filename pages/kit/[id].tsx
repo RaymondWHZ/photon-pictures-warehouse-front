@@ -18,6 +18,7 @@ import TextArea from "antd/lib/input/TextArea";
 import {ReservationDisplay, reservationsToDates} from "../../components/reservations";
 import {KitImages} from "../../components/images";
 import {KitStatusTag, KitTypeTag} from "../../components/tags";
+import Head from "next/head";
 
 const DescriptionCard: React.FC<{ kit: Kit }> = ({ kit }) => {
   return (
@@ -188,6 +189,9 @@ const KitDetail = () => {
 
   return (
     <div style={{ display: "flex", justifyContent: "center", padding: "50px" }}>
+      <Head>
+        <title>光子映画器材库 - { kit?.name ?? "器材" }</title>
+      </Head>
       <div style={{ maxWidth: "1000px", width: "100%" }}>
         <Breadcrumb style={{ paddingBottom: "20px" }}>
           <Breadcrumb.Item>

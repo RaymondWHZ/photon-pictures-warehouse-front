@@ -2,12 +2,16 @@ import {PortableText} from "@portabletext/react";
 import {useManual} from "../util/services";
 import {Button, Divider, Skeleton} from "antd";
 import Link from "next/link";
+import Head from "next/head";
 
 const Home = () => {
   const { data: manual } = useManual()
 
   return (
     <div style={{ display: "flex", justifyContent: "center", padding: "30px" }}>
+      <Head>
+        <title>光子映画器材库 - 使用须知</title>
+      </Head>
       <div style={{ maxWidth: "1000px", width: "100%" }}>
         {manual ?
           <>

@@ -8,6 +8,7 @@ import {KitOverview} from "../types/types";
 import {toPlainText} from "@portabletext/react";
 import {urlFor} from "../util/utils";
 import {KitStatusTag, KitTypeTag} from "../components/tags";
+import Head from "next/head";
 
 const KitCardSkeleton: React.FC = () => (
   <Card
@@ -58,6 +59,9 @@ const Kits: NextPage = () => {
   const { data } = useAllKits()
   return (
     <div style={{ display: "flex", justifyContent: "center", padding: "30px" }}>
+      <Head>
+        <title>光子映画器材库 - 所有器材</title>
+      </Head>
       <Row gutter={[8, 8]} style={{ maxWidth: "1000px", flex: 1 }}>
         {data ?
           data.map((kit: KitOverview) => (
