@@ -4,7 +4,7 @@ import {PortableTextBlock} from "@portabletext/types";
 export interface KitOverview {
   _id: string,
   name: string,
-  description: PortableTextBlock[],
+  description: PortableTextBlock[] | PortableTextBlock,
   type: string,
   status: string,
   cover: SanityImageSource

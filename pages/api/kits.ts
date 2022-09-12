@@ -6,7 +6,7 @@ const query = `
 *[_type == "kit" && !(_id in path("drafts.**"))] | order(serial asc) {
   _id,
   name,
-  description,
+  description[0],
   type,
   status,
   cover

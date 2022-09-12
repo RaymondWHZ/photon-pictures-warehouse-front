@@ -163,7 +163,7 @@ const BorrowCard: React.FC<{ kit: Kit, reservations: ReservationSlot[] }> = ({ k
           </SubTitle>
           <PortableText value={kit.rules}/>
           <Checkbox style={{ marginBottom: "8px" }} checked={agreed} onChange={e => setAgreed(e.target.checked)}>
-              我已阅读并同意借用规则和<a href={"/"} target="_blank" rel="noreferrer">器材库使用说明</a>
+              我已阅读并同意借用规则和<a href={"/"} target="_blank" rel="noreferrer">器材库使用须知</a>
           </Checkbox>
           <Form.Item style={{ width: "100%" }}>
               <Button type="primary" htmlType="submit" style={{ width: "100%" }} disabled={!agreed}>

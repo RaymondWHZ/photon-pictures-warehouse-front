@@ -25,7 +25,7 @@ const NavBar: React.FC = () => {
 const Footer = () => {
   return (
     <div style={{ width: "100%", padding: "30px", textAlign: "center", color: "gray" }}>
-      Copyright © 2022 光子映画 保留所有权利 <Link href={"/dev"}>开发信息</Link>
+      Copyright © 2022 光子映画 保留所有权利 <Link href={"/dev"}>了解开发信息</Link>
     </div>
   )
 }
