@@ -30,11 +30,8 @@ const DescriptionCard: React.FC<{ kit: Kit }> = ({ kit }) => {
         <Meta
             title={
               <>
-                <KitTypeTag type={kit.type} style={{ marginBottom: "10px" }}/> <br/>
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <span style={{ fontSize: "24px", marginRight: "5px" }}>{kit.name}</span>
-                  <KitStatusTag status={kit.status}/>
-                </div>
+                <KitTypeTag type={kit.type} style={{ marginBottom: "10px" }}/>  <KitStatusTag status={kit.status}/> <br/>
+                <span style={{ fontSize: "24px", marginRight: "5px" }}>{kit.name}</span>
               </>
             }
             description={

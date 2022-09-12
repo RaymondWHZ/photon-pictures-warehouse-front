@@ -2,7 +2,16 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import client from "../../util/client";
 import {KitOverview} from "../../types/types";
 
-const query = '*[_type == "kit" && !(_id in path("drafts.**"))]{ _id, name, description, type, status, cover }'
+const query = `
+*[_type == "kit" && !(_id in path("drafts.**"))] | order(serial asc) {
+  _id,
+  name,
+  description,
+  type,
+  status,
+  cover
+}
+`
 
 type Data = {
   data: KitOverview[]

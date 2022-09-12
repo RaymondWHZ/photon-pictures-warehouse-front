@@ -25,11 +25,10 @@ const KitCard: React.FC<{ kit: KitOverview }> = ({ kit }) => {
           <Meta
             title={
               <>
-                <KitTypeTag type={kit.type} style={{ marginBottom: "10px" }}/> <br/>
-                <div style={{ display: "flex", alignItems: "center" }}>
-                  <span style={{ fontSize: "18px", marginRight: "5px" }}>{kit.name}</span>
-                  <KitStatusTag status={kit.status}/>
-                </div>
+                <KitTypeTag type={kit.type} style={{ marginBottom: "10px" }}/> <KitStatusTag status={kit.status}/> <br/>
+                <Typography.Text style={{ fontSize: "18px", marginRight: "5px" }}>
+                  {kit.name}
+                </Typography.Text>
               </>
             }
             description={

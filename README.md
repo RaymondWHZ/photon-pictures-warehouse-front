@@ -14,6 +14,8 @@ NEXT_PUBLIC_SANITY_DATASET=
 SANITY_TOKEN=
 SENDGRID_API_KEY=
 SENDGRID_EMAIL=
+SENDGRID_EMAIL_NAME=
+SENDGRID_TEMPLATE_ID=
 ```
 
 The file .env.local will not be uploaded to GitHub, and the variables should be set during deployment.
