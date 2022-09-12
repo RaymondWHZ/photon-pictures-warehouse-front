@@ -96,7 +96,7 @@ const ContactModal: React.FC<{ borrowInfo: any, onClose: () => void }> = ({ borr
         <Result
           status="success"
           title="申请提交成功"
-          subTitle="请微信联系器材库管理人员"
+          subTitle="你将会收到一封确认邮件，包含下一步申请步骤，请注意查收"
           extra={[
             <Button key={0} onClick={onCloseCancel}>关闭窗口</Button>
           ]}

@@ -1,5 +1,5 @@
-import {PortableTextBlock} from "@portabletext/types";
 import {SanityImageSource} from "@sanity/image-url/lib/types/types";
+import {PortableTextBlock} from "@portabletext/types";
 
 export interface KitOverview {
   _id: string,

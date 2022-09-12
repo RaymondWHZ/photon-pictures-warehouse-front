@@ -29,8 +29,17 @@ export const createReservation = async (reservation: ReservationInfo, abortContr
   }
 }
 
-export const useSettings = () => {
-  const { data, error } = useSWR<AxiosResponse>('/api/settings', axios.get)
+export const useManual = () => {
+  const { data, error } = useSWR<AxiosResponse>('/api/manual', axios.get)
+  return {
+    data: data?.data.data,
+    error,
+    loading: !data && !error
+  }
+}
+
+export const useDev = () => {
+  const { data, error } = useSWR<AxiosResponse>('/api/dev', axios.get)
   return {
     data: data?.data.data,
     error,

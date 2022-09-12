@@ -3,6 +3,7 @@ lockfileVersion: 5.4
 specifiers:
   '@ant-design/icons': ^4.7.0
   '@portabletext/react': ^1.0.6
+  '@portabletext/types': ^1.0.3
   '@sanity/client': ^3.3.6
   '@sanity/image-url': ^1.0.1
   '@sendgrid/mail': ^7.7.0
@@ -23,6 +24,7 @@ specifiers:
 dependencies:
   '@ant-design/icons': 4.7.0_biqbaboplfbrettd7655fr4n2y
   '@portabletext/react': 1.0.6_react@18.2.0
+  '@portabletext/types': 1.0.3
   '@sanity/client': 3.3.6
   '@sanity/image-url': 1.0.1
   '@sendgrid/mail': 7.7.0

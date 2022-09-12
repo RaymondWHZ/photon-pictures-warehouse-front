@@ -11,6 +11,7 @@
   "dependencies": {
     "@ant-design/icons": "^4.7.0",
     "@portabletext/react": "^1.0.6",
+    "@portabletext/types": "^1.0.3",
     "@sanity/client": "^3.3.6",
     "@sanity/image-url": "^1.0.1",
     "@sendgrid/mail": "^7.7.0",

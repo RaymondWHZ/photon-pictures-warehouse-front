@@ -1,20 +1,20 @@
 import {PortableText} from "@portabletext/react";
-import {useSettings} from "../util/services";
+import {useManual} from "../util/services";
 import {Button, Divider, Skeleton} from "antd";
 import Link from "next/link";
 
 const Home = () => {
-  const { data: settings } = useSettings()
+  const { data: manual } = useManual()
 
   return (
     <div style={{ display: "flex", justifyContent: "center", padding: "30px" }}>
       <div style={{ maxWidth: "1000px", width: "100%" }}>
-        {settings ?
+        {manual ?
           <>
             <div style={{ width: "600px", fontSize: "16px", paddingTop: "30px" }}>
               <span style={{ fontSize: "28px", fontWeight: "bold" }}>器材库使用须知</span>
               <Divider/>
-              <PortableText value={settings.manual}/>
+              <PortableText value={manual}/>
             </div>
             <div style={{ position: "fixed", top: "42%", left: "50%", paddingLeft: "200px", width: "500px",
               display: "flex", flexDirection: "column", alignItems: "center" }}>
