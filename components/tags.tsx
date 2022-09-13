@@ -21,18 +21,20 @@ export const KitTypeTag: React.FC<KitTypeTagProps> = ({type, style}) => {
 
 export interface KitStatusTagProps {
   status: string
+  availableNow: boolean
   style?: React.CSSProperties
 }
 
-export const KitStatusTag: React.FC<KitStatusTagProps> = ({status, style}) => {
-  if (status == "available") {
-    return <Tag color="default" style={style}>当前可借用</Tag>
-  }
-  if (status == "in-use") {
-    return <Tag color="default" style={style}>可预约</Tag>
-  }
+export const KitStatusTag: React.FC<KitStatusTagProps> = ({status, availableNow, style}) => {
   if (status == "unavailable") {
-    return <Tag color="default" style={style}>暂不可用</Tag>
+    return <Tag color="default" style={style}>器材暂不可用</Tag>
+  }
+  if (status == "available") {
+    if (availableNow) {
+      return <Tag color="default" style={style}>当前可借用</Tag>
+    } else {
+      return <Tag color="default" style={style}>可预约</Tag>
+    }
   }
   return <Tag style={style}>{status}</Tag>
 }

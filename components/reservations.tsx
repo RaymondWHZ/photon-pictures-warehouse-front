@@ -23,10 +23,11 @@ const reservationsToDates = (reservations: ReservationSlot[]): Set<string> => {
 }
 
 interface ReservationDisplayProps {
+  statusAvailable: boolean
   unavailableDates: Set<string>
 }
 
-const ReservationDisplay: React.FC<ReservationDisplayProps> = ({ unavailableDates }) => {
+const ReservationDisplay: React.FC<ReservationDisplayProps> = ({ statusAvailable, unavailableDates }) => {
   return (
     <>
       <SubTitle>
@@ -35,8 +36,11 @@ const ReservationDisplay: React.FC<ReservationDisplayProps> = ({ unavailableDate
       <Calendar
         fullscreen={false}
         disabledDate={date => {
-          return unavailableDates.has(date.format("YYYY-MM-DD")) ||
-            date.isBefore(moment(), "day")
+          return (
+            !statusAvailable ||
+            date.isBefore(moment(), "day") ||
+            unavailableDates.has(date.format("YYYY-MM-DD"))
+          )
         }}
       />
     </>
@@ -135,6 +139,11 @@ export const ReservationCard: React.FC<ReservationCardProps> = ({ kit, reservati
     })
   }
 
+  const statusAvailable = useMemo(
+    () => kit ? kit.status == "available" : false,
+    [kit]
+  )
+
   const unavailableDates = useMemo(
     () => reservations ? reservationsToDates(reservations) : new Set<string>(),
     [reservations]
@@ -150,7 +159,7 @@ export const ReservationCard: React.FC<ReservationCardProps> = ({ kit, reservati
           style={{ display: "flex", flexDirection: "column" }}
           onFinish={onSubmitBorrowInfo}
         >
-          <ReservationDisplay unavailableDates={unavailableDates}/>
+          <ReservationDisplay statusAvailable={statusAvailable} unavailableDates={unavailableDates}/>
           <Divider/>
           <SubTitle>
             发起借用申请：
@@ -160,8 +169,11 @@ export const ReservationCard: React.FC<ReservationCardProps> = ({ kit, reservati
               style={{ width: "100%" }}
               placeholder={["起始日期", "结束日期"]}
               disabledDate={date => {
-                return unavailableDates.has(date.format("YYYY-MM-DD")) ||
-                  date.isBefore(moment(), "day")
+                return (
+                  !statusAvailable ||
+                  date.isBefore(moment(), "day") ||
+                  unavailableDates.has(date.format("YYYY-MM-DD"))
+                )
               }}
             />
           </Form.Item>

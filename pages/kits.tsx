@@ -37,7 +37,9 @@ const KitCard: React.FC<{ kit: KitOverview }> = ({ kit }) => {
           <Meta
             title={
               <>
-                <KitTypeTag type={kit.type} style={{ marginBottom: "10px" }}/> <KitStatusTag status={kit.status}/> <br/>
+                <KitTypeTag type={kit.type} style={{ marginBottom: "10px" }}/>
+                <KitStatusTag status={kit.status} availableNow={kit.availableNow}/>
+                <br/>
                 <Typography.Text style={{ fontSize: "18px", marginRight: "5px" }}>
                   {kit.name}
                 </Typography.Text>

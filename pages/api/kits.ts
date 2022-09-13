@@ -9,7 +9,14 @@ const query = `
   description[0],
   type,
   status,
-  cover
+  cover,
+  "availableNow": count(
+                    *[_type == "reservation" &&
+                      kit._ref == ^._id &&
+                      startDate <= now() &&
+                      endDate >= now() &&
+                      status in ["passed", "in-use", "exception"]]
+                  ) == 0
 }
 `
 

@@ -7,7 +7,8 @@ export interface KitOverview {
   description: PortableTextBlock[] | PortableTextBlock,
   type: string,
   status: string,
-  cover: SanityImageSource
+  cover: SanityImageSource,
+  availableNow: boolean
 }
 
 export interface Kit extends KitOverview {
