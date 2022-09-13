@@ -1,7 +1,7 @@
 import React, {PropsWithChildren, useMemo, useRef, useState} from "react";
 import {Button, Calendar, Card, Checkbox, DatePicker, Divider, Form, Input, message, Modal, Result} from "antd";
 import {Kit, ReservationSlot} from "../types/types";
-import moment, {Moment} from "moment";
+import moment from "moment";
 import {createReservation} from "../util/services";
 import TextArea from "antd/lib/input/TextArea";
 import {PortableText} from "@portabletext/react";
@@ -24,11 +24,9 @@ const reservationsToDates = (reservations: ReservationSlot[]): Set<string> => {
 
 interface ReservationDisplayProps {
   unavailableDates: Set<string>
-  selectedDate?: Moment
-  onChange?: (date: Moment) => void
 }
 
-const ReservationDisplay: React.FC<ReservationDisplayProps> = ({ unavailableDates, selectedDate, onChange }) => {
+const ReservationDisplay: React.FC<ReservationDisplayProps> = ({ unavailableDates }) => {
   return (
     <>
       <SubTitle>
@@ -36,9 +34,10 @@ const ReservationDisplay: React.FC<ReservationDisplayProps> = ({ unavailableDate
       </SubTitle>
       <Calendar
         fullscreen={false}
-        disabledDate={date => unavailableDates.has(date.format("YYYY-MM-DD"))}
-        value={selectedDate}
-        onChange={onChange}
+        disabledDate={date => {
+          return unavailableDates.has(date.format("YYYY-MM-DD")) ||
+            date.isBefore(moment(), "day")
+        }}
       />
     </>
   )
@@ -125,8 +124,6 @@ export interface ReservationCardProps {
 export const ReservationCard: React.FC<ReservationCardProps> = ({ kit, reservations, style }) => {
   const [agreed, setAgreed] = useState(false)
   const [borrowInfo, setBorrowInfo] = useState<any>(null)
-  const [form] = Form.useForm();
-  const [selectedDate, setSelectedDate] = useState<Moment | null>(moment())
 
   const onSubmitBorrowInfo = (data: any) => {
     setBorrowInfo({
@@ -150,18 +147,10 @@ export const ReservationCard: React.FC<ReservationCardProps> = ({ kit, reservati
     >
       {kit &&
         <Form
-          form={form}
           style={{ display: "flex", flexDirection: "column" }}
           onFinish={onSubmitBorrowInfo}
         >
-          <ReservationDisplay
-            unavailableDates={unavailableDates}
-            selectedDate={selectedDate ?? undefined}
-            onChange={date => {
-              setSelectedDate(date)
-              form.setFieldValue("dates", [date, null])
-            }}
-          />
+          <ReservationDisplay unavailableDates={unavailableDates}/>
           <Divider/>
           <SubTitle>
             发起借用申请：
@@ -170,8 +159,10 @@ export const ReservationCard: React.FC<ReservationCardProps> = ({ kit, reservati
             <DatePicker.RangePicker
               style={{ width: "100%" }}
               placeholder={["起始日期", "结束日期"]}
-              disabledDate={date => unavailableDates.has(date.format("YYYY-MM-DD"))}
-              onChange={dates => {dates && setSelectedDate(dates![0])}}
+              disabledDate={date => {
+                return unavailableDates.has(date.format("YYYY-MM-DD")) ||
+                  date.isBefore(moment(), "day")
+              }}
             />
           </Form.Item>
           <Form.Item name="project" rules={[{ required: true, message: '请输入项目名称' }]}>
