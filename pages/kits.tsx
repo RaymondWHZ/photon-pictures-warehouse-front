@@ -6,9 +6,10 @@ import Link from "next/link";
 import {useAllKits} from "../util/services";
 import {KitOverview} from "../types/types";
 import {toPlainText} from "@portabletext/react";
-import {urlFor} from "../util/utils";
+import {urlFor} from "../util/images";
 import {KitStatusTag, KitTypeTag} from "../components/tags";
 import Head from "next/head";
+import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint";
 
 const KitCardSkeleton: React.FC = () => (
   <Card
@@ -59,12 +60,14 @@ const KitCard: React.FC<{ kit: KitOverview }> = ({ kit }) => {
 
 const Kits: NextPage = () => {
   const { data } = useAllKits()
+  const { md, lg } = useBreakpoint()
+
   return (
     <div style={{ display: "flex", justifyContent: "center", padding: "30px" }}>
       <Head>
         <title>光子映画器材库 - 所有器材</title>
       </Head>
-      <Row gutter={[8, 8]} style={{ maxWidth: "1000px", flex: 1 }}>
+      <Row gutter={[8, 8]} style={{ maxWidth: lg ? "1000px" : md ? "670px" : "400px", flex: 1 }}>
         {data ?
           data.map((kit: KitOverview) => (
             <Col key={kit._id} span={24} md={12} lg={8} style={{ display: "flex", justifyContent: "center" }}>
