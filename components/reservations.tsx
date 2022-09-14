@@ -107,7 +107,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ borrowInfo, onClose }) => {
           <Form.Item name="name" label="借用人姓名" rules={[{ required: true, message: '请输入借用人姓名' }]}>
             <Input placeholder="姓名" />
           </Form.Item>
-          <Form.Item name="email" label="借用人 UIUC 邮箱" rules={[{ required: true, message: '请输入借用人 UIUC 邮箱' }]}>
+          <Form.Item name="email" label="借用人 UIUC 邮箱" rules={[{ required: true, message: '请输入借用人 UIUC 邮箱', pattern: /.+@illinois.edu/ }]}>
             <Input placeholder="@illinois.edu" />
           </Form.Item>
           <Form.Item name="wechat" label="借用人微信号" rules={[{ required: true, message: '请输入借用人微信号' }]}>

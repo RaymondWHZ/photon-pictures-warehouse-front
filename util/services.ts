@@ -1,9 +1,11 @@
 import useSWR from "swr";
 import axios, {AxiosResponse} from "axios";
 import {ReservationInfo} from "../types/types";
+import moment from "moment";
 
 export const useAllKits = () => {
-  const { data, error } = useSWR<AxiosResponse>('/api/kits', axios.get)
+  const today = moment().format("YYYY-MM-DD");
+  const { data, error } = useSWR<AxiosResponse>(`/api/kits?today=${today}`, axios.get)
   return {
     data: data?.data.data,
     error,
@@ -12,7 +14,8 @@ export const useAllKits = () => {
 }
 
 export const useKitDetail = (id: string) => {
-  const { data, error } = useSWR<AxiosResponse>(`/api/kit?id=${id}`, axios.get)
+  const today = moment().format("YYYY-MM-DD");
+  const { data, error } = useSWR<AxiosResponse>(`/api/kit?id=${id}&today=${today}`, axios.get)
   return {
     data: data?.data,
     error,

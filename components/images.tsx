@@ -15,7 +15,7 @@ export const KitImages: React.FC<KitImagesProps> = ({ images, width, height }) =
   return (
     <div style={{ width, display: "flex", flexDirection: "column", alignItems: "center" }}>
       <Carousel
-        autoplay
+        autoplay={!visible}
         style={{ width }}
         afterChange={setIndex}
       >

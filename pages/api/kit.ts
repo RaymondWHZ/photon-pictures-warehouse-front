@@ -11,7 +11,14 @@ const query = `
     images,
     rules,
     type,
-    status
+    status,
+    "availableNow": count(
+                      *[_type == "reservation" &&
+                        kit._ref == ^._id &&
+                        startDate <= $today &&
+                        endDate >= $today &&
+                        status in ["passed", "in-use", "exception"]]
+                    ) == 0
   },
   "reservations": *[_type == "reservation" &&
                     !(_id in path("drafts.**")) &&
@@ -32,6 +39,9 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  const result = await client.fetch(query, { id: req.query.id })
+  const result = await client.fetch(query, {
+    id: req.query.id,
+    today: req.query.today,
+  })
   res.status(200).json(result)
 }

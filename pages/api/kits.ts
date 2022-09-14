@@ -13,8 +13,8 @@ const query = `
   "availableNow": count(
                     *[_type == "reservation" &&
                       kit._ref == ^._id &&
-                      startDate <= now() &&
-                      endDate >= now() &&
+                      startDate <= $today &&
+                      endDate >= $today &&
                       status in ["passed", "in-use", "exception"]]
                   ) == 0
 }
@@ -28,5 +28,8 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  res.status(200).json({ data: await client.fetch(query) })
+  const result = await client.fetch(query, {
+    today: req.query.today,
+  })
+  res.status(200).json({ data: result })
 }
