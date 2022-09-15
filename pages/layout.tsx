@@ -1,18 +1,17 @@
 import React from "react";
 import Link from "next/link";
-import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint";
+import styles from "./layout.module.css";
 
 const NavBar: React.FC = () => {
-  const { md } = useBreakpoint();
   return (
     <div style={{ position: "fixed", top: 0, width: "100%", height: "65px", background: "black", color: "white", zIndex: 1000,
                   display: "flex", alignItems: "center", paddingLeft: "30px", paddingRight: "40px"}}>
       <div style={{ width: "120px" }}>
-        <img src={"/logo.png"} height={ md ? "50px" : "40px" } alt=""/>
+        <img className={styles.logo} src={"/logo.png"} alt=""/>
       </div>
       <div style={{ flex: 1, display: "flex", justifyContent: "center" }}>
         <Link href={"/"}>
-          <a style={{ fontFamily: "Ma Shan Zheng", fontSize: md ? "28px" : "24px", color: "white" }}>器材库</a>
+          <a className={styles.title} style={{ color: "white" }}>器材库</a>
         </Link>
       </div>
       <div style={{ width: "120px", textAlign: "right" }}>

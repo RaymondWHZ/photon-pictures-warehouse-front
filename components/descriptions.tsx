@@ -6,12 +6,12 @@ import Meta from "antd/lib/card/Meta";
 import {KitStatusTag, KitTypeTag} from "./tags";
 import {PortableText} from "@portabletext/react";
 
-export interface DescriptionCardProps {
+export interface DescriptionCardProps extends React.ComponentProps<typeof Card> {
   kit: Kit
-  style?: React.CSSProperties
 }
 
-export const DescriptionCard: React.FC<DescriptionCardProps> = ({ kit, style }) => {
+export const DescriptionCard: React.FC<DescriptionCardProps> = (props) => {
+  const { kit } = props
   const card = useRef<HTMLDivElement>(null)
   const [width, setWidth] = React.useState(0)
 
@@ -32,7 +32,7 @@ export const DescriptionCard: React.FC<DescriptionCardProps> = ({ kit, style }) 
       ref={card}
       loading={!kit}
       cover={kit && <KitImages images={kit.images} width={width + 2} height={(width + 2) / 1.5}/>}  // +2 to account for border
-      style={style}
+      {...props}
     >
       {kit &&
           <Meta

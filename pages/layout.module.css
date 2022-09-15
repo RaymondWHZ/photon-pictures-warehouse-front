@@ -1,0 +1,19 @@
+
+.logo {
+    height: 40px;
+}
+
+.title {
+    font-family: Ma Shan Zheng, serif;
+    font-size: 24px;
+}
+
+@media screen and (min-width: 768px) {
+    .logo {
+        height: 50px;
+    }
+
+    .title {
+        font-size: 28px;
+    }
+}

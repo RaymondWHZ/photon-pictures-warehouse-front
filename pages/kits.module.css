@@ -1,0 +1,19 @@
+
+.cardView {
+    flex: 1;
+    max-width: 400px;
+}
+
+@media screen and (min-width: 768px) {
+    .cardView {
+        flex: 1;
+        max-width: 670px;
+    }
+}
+
+@media screen and (min-width: 992px) {
+    .cardView {
+        flex: 1;
+        max-width: 1000px;
+    }
+}

@@ -119,13 +119,13 @@ const ContactModal: React.FC<ContactModalProps> = ({ borrowInfo, onClose }) => {
   )
 }
 
-export interface ReservationCardProps {
+export interface ReservationCardProps extends React.ComponentProps<typeof Card> {
   kit: Kit
   reservations: ReservationSlot[]
-  style?: React.CSSProperties
 }
 
-export const ReservationCard: React.FC<ReservationCardProps> = ({ kit, reservations, style }) => {
+export const ReservationCard: React.FC<ReservationCardProps> = (props) => {
+  const { kit, reservations } = props;
   const [agreed, setAgreed] = useState(false)
   const [borrowInfo, setBorrowInfo] = useState<any>(null)
 
@@ -152,7 +152,7 @@ export const ReservationCard: React.FC<ReservationCardProps> = ({ kit, reservati
   return (
     <Card
       loading={!kit}
-      style={style}
+      {...props}
     >
       {kit &&
         <Form

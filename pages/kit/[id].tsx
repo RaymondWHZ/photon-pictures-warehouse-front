@@ -7,22 +7,21 @@ import {useKitDetail} from "../../util/services";
 import React from "react";
 import {ReservationCard} from "../../components/reservations";
 import Head from "next/head";
-import useBreakpoint from "antd/lib/grid/hooks/useBreakpoint";
 import {DescriptionCard} from "../../components/descriptions";
+import styles from "./kit.module.css";
 
 const KitDetail = () => {
   const router = useRouter()
   const { id } = router.query
   const { data } = useKitDetail(id as string)
   const { kit, reservations } = data ?? {}
-  const { md, lg } = useBreakpoint()
 
   return (
     <div style={{ display: "flex", justifyContent: "center", padding: "30px" }}>
       <Head>
         <title>{`光子映画器材库 - ${ kit?.name ?? "器材" }`}</title>
       </Head>
-      <div style={{ maxWidth: lg ? "1000px" : "600px", width: "100%"}}>
+      <div className={styles.contentDiv}>
         <Breadcrumb style={{ paddingBottom: "20px" }}>
           <Breadcrumb.Item>
             <Link href={"/kits"}>
@@ -35,16 +34,15 @@ const KitDetail = () => {
             { kit?.name ?? "器材" }
           </Breadcrumb.Item>
         </Breadcrumb>
-        <div style={{ display: "flex", flexDirection: lg ? "row" : "column" }}>
+        <div className={styles.cardFlex}>
           <DescriptionCard
+            className={styles.description}
             kit={kit}
-            style={{ width: md ? "600px" : "100%",
-                     marginRight: lg ? "30px" : "0px", marginBottom: lg ? "0px" : "30px" }}
           />
           <ReservationCard
+            className={styles.reservation}
             kit={kit}
             reservations={reservations}
-            style={{ width: lg ? "370px" : md ? "600px" : "100%" }}
           />
         </div>
       </div>

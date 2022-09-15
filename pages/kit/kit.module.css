@@ -1,0 +1,49 @@
+
+.contentDiv {
+    max-width: 600px;
+    width: 100%;
+}
+
+.cardFlex {
+    display: flex;
+    flex-direction: column;
+}
+
+.description {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 30px;
+}
+
+.reservation {
+    width: 100%;
+}
+
+@media screen and (min-width: 768px) {
+    .description {
+        width: 600px;
+    }
+
+    .reservation {
+        width: 600px;
+    }
+}
+
+@media screen and (min-width: 1070px) {
+    .contentDiv {
+        max-width: 1000px;
+    }
+
+    .cardFlex {
+        flex-direction: row;
+    }
+
+    .description {
+        margin-right: 30px;
+        margin-bottom: 0;
+    }
+
+    .reservation {
+        width: 370px;
+    }
+}
