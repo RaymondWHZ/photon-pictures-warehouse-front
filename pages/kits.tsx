@@ -1,5 +1,5 @@
 import type { NextPage } from 'next'
-import {Card, Col, Row, Typography} from "antd";
+import {Card, Col, Divider, Row, Typography} from "antd";
 import React from "react";
 import Meta from "antd/lib/card/Meta";
 import Link from "next/link";
@@ -22,7 +22,7 @@ const KitCardSkeleton: React.FC = () => (
   />
 )
 
-const KitCard: React.FC<{ kit: KitOverview }> = ({ kit }) => {
+const KitCard: React.FC<{ kit: KitOverview, disabled?: boolean }> = ({ kit, disabled }) => {
   return (
     <Link href={`/kit/${kit._id}`}>
       <a style={{ margin: "20px" }}>
@@ -33,7 +33,7 @@ const KitCard: React.FC<{ kit: KitOverview }> = ({ kit }) => {
               {kit.cover && <img src={urlFor(kit.cover)} alt="" style={{ height: "200px" }}/>}
             </div>
           }
-          style={{ width: "300px", height: "389px" }}
+          style={{ width: "300px", height: "389px", opacity: disabled ? 0.5 : 1 }}
         >
           <Meta
             title={
@@ -58,29 +58,42 @@ const KitCard: React.FC<{ kit: KitOverview }> = ({ kit }) => {
   )
 }
 
+const CardGrid: React.FC<{ kits?: KitOverview[] }> = ({ kits }) => {
+  return (
+    <Row className={styles.cardView} gutter={[8, 8]}>
+      {
+        kits ?
+        kits.map((kit: KitOverview) => (
+          <Col key={kit._id} span={24} md={12} lg={8} style={{ display: "flex", justifyContent: "center" }}>
+            <KitCard kit={kit} disabled={kit.status == "unavailable"}/>
+          </Col>
+        ))
+        :
+        [1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+          <Col key={i} span={24} md={12} lg={8} style={{ display: "flex", justifyContent: "center" }}>
+            <KitCardSkeleton/>
+          </Col>
+        ))
+      }
+    </Row>
+  )
+}
+
 const Kits: NextPage = () => {
-  const { data } = useAllKits()
+  const { data: kits } = useAllKits()
 
   return (
-    <div style={{ display: "flex", justifyContent: "center", padding: "30px" }}>
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "30px" }}>
       <Head>
         <title>光子映画器材库 - 所有器材</title>
       </Head>
-      <Row className={styles.cardView} gutter={[8, 8]}>
-        {data ?
-          data.map((kit: KitOverview) => (
-            <Col key={kit._id} span={24} md={12} lg={8} style={{ display: "flex", justifyContent: "center" }}>
-              <KitCard kit={kit}/>
-            </Col>
-          ))
-          :
-          [1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
-            <Col key={i} span={24} md={12} lg={8} style={{ display: "flex", justifyContent: "center" }}>
-              <KitCardSkeleton/>
-            </Col>
-          ))
-        }
-      </Row>
+      <CardGrid kits={kits?.filter((kit: KitOverview) => kit.status === "available")}/>
+      {kits && (
+        <>
+          <Divider style={{ marginTop: "50px", marginBottom: "30px" }}>暂不可用器材</Divider>
+          <CardGrid kits={kits?.filter((kit: KitOverview) => kit.status === "unavailable")}/>
+        </>
+      )}
     </div>
   )
 }

@@ -158,6 +158,7 @@ export const ReservationCard: React.FC<ReservationCardProps> = (props) => {
         <Form
           style={{ display: "flex", flexDirection: "column" }}
           onFinish={onSubmitBorrowInfo}
+          disabled={!statusAvailable}
         >
           <ReservationDisplay statusAvailable={statusAvailable} unavailableDates={unavailableDates}/>
           <Divider/>
@@ -181,7 +182,7 @@ export const ReservationCard: React.FC<ReservationCardProps> = (props) => {
             <Input placeholder="项目名称" />
           </Form.Item>
           <Form.Item name="usage" rules={[{ required: true, message: '请输入使用场景' }]}>
-            <TextArea placeholder="使用场景" />
+            <TextArea disabled={!statusAvailable} placeholder="使用场景" />
           </Form.Item>
           <SubTitle>
             借用规则：
