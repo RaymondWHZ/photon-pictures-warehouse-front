@@ -1,6 +1,6 @@
 import {Kit} from "../types/types";
 import React, {useEffect, useRef} from "react";
-import {Card} from "antd";
+import {Card, Skeleton} from "antd";
 import {KitImages} from "./images";
 import Meta from "antd/lib/card/Meta";
 import {KitStatusTag, KitTypeTag} from "./tags";
@@ -19,7 +19,7 @@ export const DescriptionCard: React.FC<DescriptionCardProps> = (props) => {
     if (card.current) {
       const ro = new ResizeObserver(() => {
         if (card.current) {
-          setWidth(card.current.clientWidth)
+          setWidth(card.current.clientWidth + 2)  // +2 to account for border
         }
       })
       ro.observe(card.current)
@@ -30,11 +30,14 @@ export const DescriptionCard: React.FC<DescriptionCardProps> = (props) => {
   return (
     <Card
       ref={card}
-      loading={!kit}
-      cover={kit && <KitImages images={kit.images} width={width + 2} height={(width + 2) / 1.5}/>}  // +2 to account for border
+      cover={
+        kit ?
+          <KitImages images={kit.images} width={width} height={width / 1.5}/> :
+          <div style={{ height: width / 1.5, background: "#f0f0f0" }}/>
+      }
       {...props}
     >
-      {kit &&
+      {kit ?
           <Meta
               title={
                 <>
@@ -50,6 +53,8 @@ export const DescriptionCard: React.FC<DescriptionCardProps> = (props) => {
                 </div>
               }
           />
+        :
+        <Skeleton active paragraph={{ rows: 5 }} style={{ marginBottom: "150px" }}/>
       }
     </Card>
   )

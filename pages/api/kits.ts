@@ -1,24 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import client from "../../util/client";
+import {fetchKits} from "../../util/data-client";
 import {KitOverview} from "../../types/types";
-
-const query = `
-*[_type == "kit" && !(_id in path("drafts.**"))] | order(serial asc) {
-  _id,
-  name,
-  description[0],
-  type,
-  status,
-  cover,
-  "availableNow": count(
-                    *[_type == "reservation" &&
-                      kit._ref == ^._id &&
-                      startDate <= $today &&
-                      endDate >= $today &&
-                      status in ["passed", "in-use", "exception"]]
-                  ) == 0
-}
-`
 
 type Data = {
   data: KitOverview[]
@@ -28,8 +10,6 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  const result = await client.fetch(query, {
-    today: req.query.today,
-  })
+  const result = await fetchKits(req.query.today as string)
   res.status(200).json({ data: result })
 }

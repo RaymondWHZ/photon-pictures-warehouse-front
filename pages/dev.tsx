@@ -1,11 +1,21 @@
 import {PortableText} from "@portabletext/react";
-import {useDev} from "../util/services";
 import {Skeleton} from "antd";
 import Head from "next/head";
+import {fetchDev} from "../util/data-client";
+import React from "react";
+import {NextPage} from "next";
+import {PortableTextBlock} from "@portabletext/types";
 
-const Dev = () => {
-  const { data: dev } = useDev()
+export async function getStaticProps() {
+  return {
+    props: {
+      dev: await fetchDev()
+    },
+    revalidate: 10
+  }
+}
 
+const Dev: NextPage<{ dev: PortableTextBlock[] }> = ({ dev }) => {
   return (
     <div style={{ display: "flex", justifyContent: "center", padding: "30px" }}>
       <Head>

@@ -9,8 +9,9 @@ import {ReservationCard} from "../../components/reservations";
 import Head from "next/head";
 import {DescriptionCard} from "../../components/descriptions";
 import styles from "./kit.module.css";
+import {NextPage} from "next";
 
-const KitDetail = () => {
+const KitDetail: NextPage = () => {
   const router = useRouter()
   const { id } = router.query
   const { data } = useKitDetail(id as string)

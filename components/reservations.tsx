@@ -2,7 +2,7 @@ import React, {PropsWithChildren, useMemo, useRef, useState} from "react";
 import {Button, Calendar, Card, Checkbox, DatePicker, Divider, Form, Input, message, Modal, Result} from "antd";
 import {Kit, ReservationSlot} from "../types/types";
 import moment from "moment";
-import {createReservation} from "../util/services";
+import {sendReservation} from "../util/services";
 import TextArea from "antd/lib/input/TextArea";
 import {PortableText} from "@portabletext/react";
 
@@ -61,7 +61,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ borrowInfo, onClose }) => {
   const onSubmit = async (data: any) => {
     setSubmitting(true)
     abortController.current = new AbortController()
-    const result = await createReservation({
+    const result = await sendReservation({
       ...borrowInfo,
       ...data
     }, abortController.current)

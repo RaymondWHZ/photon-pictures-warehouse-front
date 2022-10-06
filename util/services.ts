@@ -23,7 +23,7 @@ export const useKitDetail = (id: string) => {
   }
 }
 
-export const createReservation = async (reservation: ReservationInfo, abortController: AbortController) => {
+export const sendReservation = async (reservation: ReservationInfo, abortController: AbortController) => {
   try {
     await axios.post('/api/reserve', reservation, { signal: abortController.signal })
     return true

@@ -1,14 +1,23 @@
 import {PortableText} from "@portabletext/react";
-import {useManual} from "../util/services";
 import {Affix, Button, Divider, Skeleton} from "antd";
 import Link from "next/link";
 import Head from "next/head";
 import React from "react";
 import styles from "./index.module.css"
+import {fetchManual} from "../util/data-client";
+import {PortableTextBlock} from "@portabletext/types";
+import {NextPage} from "next";
 
-const Home = () => {
-  const { data: manual } = useManual()
+export async function getStaticProps() {
+  return {
+    props: {
+      manual: await fetchManual()
+    },
+    revalidate: 10
+  }
+}
 
+const Home: NextPage<{ manual: PortableTextBlock[] }> = ({ manual }) => {
   return (
     <div style={{ display: "flex", justifyContent: "center", padding: "30px" }}>
       <Head>
