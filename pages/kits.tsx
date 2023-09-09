@@ -81,6 +81,7 @@ const CardGrid: React.FC<{ kits?: KitOverview[] }> = ({ kits }) => {
 
 const Kits: NextPage = () => {
   const { data: kits } = useAllKits()
+  const unAvailableKits = kits?.filter((kit: KitOverview) => kit.status === "unavailable")
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "30px" }}>
@@ -88,10 +89,10 @@ const Kits: NextPage = () => {
         <title>光子映画器材库 - 所有器材</title>
       </Head>
       <CardGrid kits={kits?.filter((kit: KitOverview) => kit.status === "available")}/>
-      {kits && (
+      {unAvailableKits && unAvailableKits.length > 0 && (
         <>
           <Divider style={{ marginTop: "50px", marginBottom: "30px" }}>暂不可用器材</Divider>
-          <CardGrid kits={kits?.filter((kit: KitOverview) => kit.status === "unavailable")}/>
+          <CardGrid kits={unAvailableKits}/>
         </>
       )}
     </div>
