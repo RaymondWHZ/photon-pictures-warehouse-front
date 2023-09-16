@@ -193,7 +193,7 @@ export const ReservationCard: React.FC<ReservationCardProps> = (props) => {
           </Checkbox>
           <Form.Item style={{ width: "100%" }}>
             <Button type="primary" htmlType="submit" style={{ width: "100%" }} disabled={!agreed}>
-              提交借用申请
+              下一步
             </Button>
           </Form.Item>
           <span style={{ width: "100%", textAlign: "center", color: "gray", fontSize: "12px", marginTop: "-15px" }}>
