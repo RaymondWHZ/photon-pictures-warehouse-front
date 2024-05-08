@@ -26,10 +26,10 @@ export interface KitStatusTagProps {
 }
 
 export const KitStatusTag: React.FC<KitStatusTagProps> = ({status, availableNow, style}) => {
-  if (status == "unavailable") {
+  if (status == "inactive") {
     return <Tag color="default" style={style}>器材暂不可用</Tag>
   }
-  if (status == "available") {
+  if (status == "active") {
     if (availableNow) {
       return <Tag color="default" style={style}>当前可借用</Tag>
     } else {

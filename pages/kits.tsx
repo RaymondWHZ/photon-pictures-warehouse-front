@@ -37,7 +37,7 @@ const KitCard: React.FC<{ kit: KitOverview, disabled?: boolean }> = ({ kit, disa
             title={
               <>
                 <KitTypeTag type={kit.tags[0]} style={{ marginBottom: "10px" }}/>
-                <KitStatusTag status={kit.status} availableNow={kit.current_record_status !== 'available'}/>
+                <KitStatusTag status={kit.status} availableNow={kit.current_record_status === 'available'}/>
                 <br/>
                 <Typography.Text style={{ fontSize: "18px", marginRight: "5px" }}>
                   {kit.name}

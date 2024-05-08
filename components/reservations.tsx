@@ -140,7 +140,7 @@ export const ReservationCard: React.FC<ReservationCardProps> = (props) => {
   }
 
   const statusAvailable = useMemo(
-    () => kit ? kit.status == "available" : false,
+    () => kit ? kit.status === "active" : false,
     [kit]
   )
 
