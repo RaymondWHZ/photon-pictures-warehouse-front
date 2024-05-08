@@ -1,79 +1,62 @@
 import {
   createDBSchemas,
-  createNotionDBClient,
-  DBObjectTypesInfer, NotionPageContent,
-  TypeWithContent
+  createNotionDBClient, date, status,
+  DBObjectTypesInfer, NotionPageContent, relation, rich_text, title,
+  TypeWithContent, number, multi_select, __id, files, formula, email, rollup, DateRange
 } from "./notion-db";
-
-export type ReservationSlot = {
-  startDate: string,
-  endDate: string
-}
 
 const dbSchemas  = createDBSchemas({
   texts: {
-    name: 'title'
+    name: title().plainText()
   },
   kits__overview: {
-    _id: '__id',
-    tags: 'multi_select',
-    name: 'title',
-    description: 'rich_text',
-    cover__img: 'files',
-    status: 'status',
-    current_record_status: 'formula',
+    _id: __id(),
+    tags: multi_select().stringEnums(['audio', 'lighting', 'video']),
+    name: title().plainText(),
+    description: rich_text().plainText(),
+    cover: files().singleNotionImageUrl(),
+    status: status().stringEnum(['active', 'inactive']),
+    current_record_status: formula().string(),
   },
   kits: {
-    _id: '__id',
-    tags: 'multi_select',
-    name: 'title',
-    description: 'rich_text',
-    cover__img: 'files',
-    images__img: 'files',
-    value: 'number',
-    status: 'status',
-    current_record_status: 'formula',
-    record_dates: {
-      type: 'rollup',
-      handler: (value): ReservationSlot[] => {
-        if (value.rollup.type === 'array') {
-          return value.rollup.array.reduce((acc, item) => {
-            if (item.type === 'date' && item.date && item.date.end) {
-              return acc.concat({
-                startDate: item.date.start,
-                endDate: item.date.end
-              })
-            }
-            return acc
-          }, [] as ReservationSlot[])
+    _id: __id(),
+    tags: multi_select().stringEnums(['audio', 'lighting', 'video']),
+    name: title().plainText(),
+    description: rich_text().plainText(),
+    cover: files().singleNotionImageUrl(),
+    images: files().notionImageUrls(),
+    value: number().numberDefaultZero(),
+    status: status().stringEnum(['active', 'inactive']),
+    current_record_status: formula().string(),
+    record_dates: rollup().bindArrayUsing((value): DateRange[] => {
+      return value.reduce((acc, item) => {
+        if (item.type === 'date' && item.date && item.date.end) {
+          return acc.concat({
+            start: item.date.start,
+            end: item.date.end
+          })
         }
-        return []
-      },
-    },
-    record_status: {
-      type: 'rollup',
-      handler: (value): string[] => {
-        if (value.rollup.type === 'array') {
-          return value.rollup.array.reduce((acc, item) => {
-            if (item.type === 'status' && item.status) {
-              return acc.concat(item.status.name)
-            }
-            return acc
-          }, [] as string[])
+        return acc
+      }, [] as DateRange[])
+    }),
+    record_status: rollup().bindArrayUsing((value): string[] => {
+      return value.reduce((acc, item) => {
+        if (item.type === 'status' && item.status) {
+          return acc.concat(item.status.name)
         }
-        return []
-      }
-    },
+        return acc
+      }, [] as string[])
+    }),
   },
   reservations: {
-    borrower: 'title',
-    kit: 'relation',
-    status: 'status',
-    dates: 'date',
-    project: 'rich_text',
-    usage: 'rich_text',
-    wechat: 'rich_text',
-    email: 'rich_text',
+    borrower: title().plainText(),
+    kit: relation().ids(),
+    status: status().string(),
+    dates: date().dateRange(),
+    project: rich_text().plainText(),
+    usage: rich_text().plainText(),
+    wechat: rich_text().plainText(),
+    email: email().string()
   }
 });
 
@@ -101,6 +84,12 @@ export async function fetchKits(): Promise<KitOverview[]> {
       property: 'serial',
       direction: 'ascending'
     }],
+    filter: {
+      property: 'status',
+      status: {
+        does_not_equal: 'hidden'
+      }
+    }
   })
 }
 

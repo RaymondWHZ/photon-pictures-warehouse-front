@@ -3,7 +3,8 @@ import {Button, Calendar, Card, Checkbox, DatePicker, Divider, Form, Input, mess
 import moment from "moment";
 import {sendReservation} from "../util/services";
 import TextArea from "antd/lib/input/TextArea";
-import {Kit, ReservationSlot} from "../util/data-client";
+import {Kit} from "../util/data-client";
+import {DateRange} from "../util/notion-db";
 
 const SubTitle: React.FC<PropsWithChildren> = ({ children }) => (
   <span style={{ fontSize: "15px", fontWeight: "bold", marginBottom: "12px" }}>
@@ -11,11 +12,11 @@ const SubTitle: React.FC<PropsWithChildren> = ({ children }) => (
   </span>
 )
 
-const reservationsToDates = (reservations: ReservationSlot[], statuses: string[]): Set<string> => {
+const reservationsToDates = (reservations: DateRange[], statuses: string[]): Set<string> => {
   const dates = new Set<string>()
   reservations.forEach((r, i) =>{
     if (['approved', 'out', 'error'].includes(statuses[i])){
-      for (let d = moment(r.startDate); d.isSameOrBefore(r.endDate); d = d.add(1, 'd')) {
+      for (let d = moment(r.start); d.isSameOrBefore(r.end); d = d.add(1, 'd')) {
         dates.add(d.format("YYYY-MM-DD"))
       }
     }

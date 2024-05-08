@@ -33,7 +33,7 @@ export const DescriptionCard: React.FC<DescriptionCardProps> = (props) => {
       ref={card}
       cover={
         kit ?
-          <KitImages images={kit.images__img} width={width} height={width / 1.5}/> :
+          <KitImages images={kit.images} width={width} height={width / 1.5}/> :
           <div style={{ height: width / 1.5, background: "#f0f0f0" }}/>
       }
       {...props}

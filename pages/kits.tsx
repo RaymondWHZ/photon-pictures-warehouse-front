@@ -28,7 +28,7 @@ const KitCard: React.FC<{ kit: KitOverview, disabled?: boolean }> = ({ kit, disa
           hoverable
           cover={
             <div style={{ height: "200px" }}>
-              {kit.cover__img[0] && <img src={kit.cover__img[0] + '&width=800'} alt="" style={{ height: "200px" }}/>}
+              {kit.cover && <img src={kit.cover + '&width=800'} alt="" style={{ height: "200px" }}/>}
             </div>
           }
           style={{ width: "300px", height: "389px", opacity: disabled ? 0.5 : 1 }}
