@@ -1,4 +1,4 @@
-import {ReservationInfo} from "../types/types";
+import {ReservationInfo} from "./data-client";
 
 const sgMail = require('@sendgrid/mail')
 
