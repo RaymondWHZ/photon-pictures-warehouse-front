@@ -94,7 +94,7 @@ export async function fetchKits(): Promise<KitOverview[]> {
 }
 
 export async function fetchKitAndReservations(id: string): Promise<TypeWithContent<Kit, 'content'>> {
-  return client.queryOneWithContentById('kits', id, 'content');
+  return await client.queryOneWithContentById('kits', id, 'content');
 }
 
 export interface ReservationInfo {
