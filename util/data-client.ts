@@ -123,16 +123,16 @@ export interface ReservationInfo {
 
 export async function createReservation(reservation: ReservationInfo): Promise<string> {
   return await client.insertToDB('reservations', {
-    borrower: reservation.name,
-    kit: reservation.kitId,
+    borrower: [{ text: { content: reservation.name } }],
+    kit: [{ id: reservation.kitId }],
     email: reservation.email,
-    wechat: reservation.wechat,
+    wechat: [{ text: { content: reservation.wechat } }],
     dates: {
       start: reservation.startDate,
       end: reservation.endDate
     },
-    project: reservation.project,
-    usage: reservation.usage,
-    status: 'pending'
+    project: [{ text: { content: reservation.project } }],
+    usage: [{ text: { content: reservation.usage } }],
+    status: { name: 'pending' }
   });
 }
