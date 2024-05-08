@@ -1,7 +1,6 @@
 import {
   createDBSchemas,
   createNotionDBClient,
-  createPartialValueHandlers,
   DBObjectTypesInfer, NotionPageContent,
   TypeWithContent
 } from "./notion-db";
@@ -83,15 +82,10 @@ type DBObjectTypes = DBObjectTypesInfer<typeof dbSchemas>
 export type KitOverview = DBObjectTypes['kits__overview']
 export type Kit = DBObjectTypes['kits']
 
-const customHandlers = createPartialValueHandlers({
-  button: (value) => 0
-});
-
 const client = createNotionDBClient({
   notionToken: process.env.NOTION_TOKEN!,
   dbPageId: process.env.NOTION_CMS_ENTRY_PAGE_ID!,
   dbSchemas,
-  customHandlers,
 });
 
 export async function fetchManual(): Promise<NotionPageContent> {
