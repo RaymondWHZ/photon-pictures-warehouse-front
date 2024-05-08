@@ -187,7 +187,13 @@ export const ReservationCard: React.FC<ReservationCardProps> = (props) => {
           <SubTitle>
             借用规则：
           </SubTitle>
-          <Checkbox style={{ marginBottom: "8px" }} checked={agreed} onChange={e => setAgreed(e.target.checked)}>
+            <ul>
+              <li>仅限光子映画社员免费借用</li>
+              <li>仅可用于完成光子映画所属项目</li>
+              <li>一次借用时长为7天，到期可以续借</li>
+              <li>丢失 / 损坏最高赔偿：${kit.value}</li>
+            </ul>
+            <Checkbox style={{marginBottom: "8px"}} checked={agreed} onChange={e => setAgreed(e.target.checked)}>
             我已阅读并同意借用规则和<a href={"/"} target="_blank" rel="noreferrer">器材库使用须知</a>
           </Checkbox>
           <Form.Item style={{ width: "100%" }}>
