@@ -32,9 +32,9 @@ Minimalist warehouse management & presentation system frontend for Photon Pictur
 **IMPORTANT: If you need to develop locally, make sure to create a file named .env.local in the root directory to configure variables including:**
 
 ```shell
-NEXT_PUBLIC_SANITY_PROJECT_ID=
-NEXT_PUBLIC_SANITY_DATASET=
-SANITY_TOKEN=
+NOTION_TOKEN=
+NOTION_CMS_ENTRY_PAGE_ID=
+
 SENDGRID_API_KEY=
 SENDGRID_EMAIL=
 SENDGRID_EMAIL_NAME=
