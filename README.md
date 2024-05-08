@@ -24,7 +24,7 @@ Minimalist warehouse management & presentation system frontend for Photon Pictur
 * UI Framework: [React.js](https://reactjs.org)
 * Component Library: [Ant Design UI](https://ant.design)
 * Application Framework: [Next.js](https://nextjs.org)
-* Backend Service (not part of this repo): [Sanity](https://www.sanity.io)
+* Backend Service (not part of this repo): [Notion](https://www.notion.so)
 * Email Sercice (not part of this repo): [SendGrid](https://sendgrid.com)
 
 ## 📦 Usage
