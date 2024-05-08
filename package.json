@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^4.7.0",
+    "@notionhq/client": "^2.2.15",
     "@portabletext/react": "^1.0.6",
     "@portabletext/types": "^1.0.3",
     "@sanity/client": "^3.4.1",
