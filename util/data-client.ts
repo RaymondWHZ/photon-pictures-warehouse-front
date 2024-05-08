@@ -20,7 +20,6 @@ const dbSchemas  = createDBSchemas({
     name: 'title',
     description: 'rich_text',
     cover__img: 'files',
-    value: 'number',
     status: 'status',
     current_record_status: 'formula',
   },
