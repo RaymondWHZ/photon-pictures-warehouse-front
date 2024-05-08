@@ -1,6 +1,6 @@
 import type {
   BlockObjectResponse, CreatePageParameters,
-  DatabaseObjectResponse, ListBlockChildrenResponse,
+  DatabaseObjectResponse,
   PageObjectResponse, PartialBlockObjectResponse,
   PartialDatabaseObjectResponse,
   PartialPageObjectResponse,
