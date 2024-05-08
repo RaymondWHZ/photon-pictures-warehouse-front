@@ -1,10 +1,9 @@
 import React, {PropsWithChildren, useMemo, useRef, useState} from "react";
 import {Button, Calendar, Card, Checkbox, DatePicker, Divider, Form, Input, message, Modal, Result} from "antd";
-import {Kit, ReservationSlot} from "../types/types";
 import moment from "moment";
 import {sendReservation} from "../util/services";
 import TextArea from "antd/lib/input/TextArea";
-import {PortableText} from "@portabletext/react";
+import {Kit, ReservationSlot} from "../util/data-client";
 
 const SubTitle: React.FC<PropsWithChildren> = ({ children }) => (
   <span style={{ fontSize: "15px", fontWeight: "bold", marginBottom: "12px" }}>
@@ -12,13 +11,15 @@ const SubTitle: React.FC<PropsWithChildren> = ({ children }) => (
   </span>
 )
 
-const reservationsToDates = (reservations: ReservationSlot[]): Set<string> => {
+const reservationsToDates = (reservations: ReservationSlot[], statuses: string[]): Set<string> => {
   const dates = new Set<string>()
-  for (let r of reservations) {
-    for (let d = moment(r.startDate); d.isSameOrBefore(r.endDate); d = d.add(1, 'd')) {
-      dates.add(d.format("YYYY-MM-DD"))
+  reservations.forEach((r, i) =>{
+    if (['approved', 'out', 'error'].includes(statuses[i])){
+      for (let d = moment(r.startDate); d.isSameOrBefore(r.endDate); d = d.add(1, 'd')) {
+        dates.add(d.format("YYYY-MM-DD"))
+      }
     }
-  }
+  })
   return dates
 }
 
@@ -120,12 +121,11 @@ const ContactModal: React.FC<ContactModalProps> = ({ borrowInfo, onClose }) => {
 }
 
 export interface ReservationCardProps extends React.ComponentProps<typeof Card> {
-  kit: Kit
-  reservations: ReservationSlot[]
+  kit?: Kit
 }
 
 export const ReservationCard: React.FC<ReservationCardProps> = (props) => {
-  const { kit, reservations } = props;
+  const { kit } = props;
   const [agreed, setAgreed] = useState(false)
   const [borrowInfo, setBorrowInfo] = useState<any>(null)
 
@@ -134,8 +134,8 @@ export const ReservationCard: React.FC<ReservationCardProps> = (props) => {
       ...data,
       startDate: data.dates[0].format("YYYY-MM-DD"),
       endDate: data.dates[1].format("YYYY-MM-DD"),
-      kitId: kit._id,
-      kitName: kit.name
+      kitId: kit?._id,
+      kitName: kit?.name
     })
   }
 
@@ -145,8 +145,8 @@ export const ReservationCard: React.FC<ReservationCardProps> = (props) => {
   )
 
   const unavailableDates = useMemo(
-    () => reservations ? reservationsToDates(reservations) : new Set<string>(),
-    [reservations]
+    () => kit ? reservationsToDates(kit.record_dates, kit.record_status) : new Set<string>(),
+    [kit]
   )
 
   return (
@@ -187,7 +187,6 @@ export const ReservationCard: React.FC<ReservationCardProps> = (props) => {
           <SubTitle>
             借用规则：
           </SubTitle>
-          <PortableText value={kit.rules}/>
           <Checkbox style={{ marginBottom: "8px" }} checked={agreed} onChange={e => setAgreed(e.target.checked)}>
             我已阅读并同意借用规则和<a href={"/"} target="_blank" rel="noreferrer">器材库使用须知</a>
           </Checkbox>

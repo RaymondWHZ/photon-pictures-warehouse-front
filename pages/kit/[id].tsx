@@ -14,8 +14,7 @@ import {NextPage} from "next";
 const KitDetail: NextPage = () => {
   const router = useRouter()
   const { id } = router.query
-  const { data } = useKitDetail(id as string)
-  const { kit, reservations } = data ?? {}
+  const { data: kit } = useKitDetail(id as string)
 
   return (
     <div style={{ display: "flex", justifyContent: "center", padding: "30px" }}>
@@ -43,7 +42,6 @@ const KitDetail: NextPage = () => {
           <ReservationCard
             className={styles.reservation}
             kit={kit}
-            reservations={reservations}
           />
         </div>
       </div>

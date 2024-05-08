@@ -1,10 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import {fetchKitAndReservations} from "../../util/data-client";
-import {Kit, ReservationSlot} from "../../types/types";
+import {fetchKitAndReservations, Kit} from "../../util/data-client";
+import {TypeWithContent} from "../../util/notion-db";
 
 type Data = {
-  kit: Kit,
-  reservations: ReservationSlot[],
+  kit: TypeWithContent<Kit, 'content'>,
 }
 
 export default async function handler(
@@ -13,7 +12,10 @@ export default async function handler(
 ) {
   const result = await fetchKitAndReservations(
     req.query.id as string,
-    req.query.today as string
   )
-  res.status(200).json(result)
+  if (!result) {
+    res.status(404)
+    return
+  }
+  res.status(200).json({ kit: result })
 }

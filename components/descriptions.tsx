@@ -1,13 +1,14 @@
-import {Kit} from "../types/types";
 import React, {useEffect, useRef} from "react";
 import {Card, Skeleton} from "antd";
 import {KitImages} from "./images";
 import Meta from "antd/lib/card/Meta";
 import {KitStatusTag, KitTypeTag} from "./tags";
-import {PortableText} from "@portabletext/react";
+import {Kit} from "../util/data-client";
+import {NotionPageContentRenderer} from "./text";
+import {TypeWithContent} from "../util/notion-db";
 
 export interface DescriptionCardProps extends React.ComponentProps<typeof Card> {
-  kit: Kit
+  kit?: TypeWithContent<Kit, 'content'>
 }
 
 export const DescriptionCard: React.FC<DescriptionCardProps> = (props) => {
@@ -32,7 +33,7 @@ export const DescriptionCard: React.FC<DescriptionCardProps> = (props) => {
       ref={card}
       cover={
         kit ?
-          <KitImages images={kit.images} width={width} height={width / 1.5}/> :
+          <KitImages images={kit.images__img} width={width} height={width / 1.5}/> :
           <div style={{ height: width / 1.5, background: "#f0f0f0" }}/>
       }
       {...props}
@@ -41,15 +42,15 @@ export const DescriptionCard: React.FC<DescriptionCardProps> = (props) => {
           <Meta
               title={
                 <>
-                  <KitTypeTag type={kit.type} style={{ marginBottom: "10px" }}/>
-                  <KitStatusTag status={kit.status} availableNow={kit.availableNow}/>
+                  <KitTypeTag type={kit.tags[0]} style={{ marginBottom: "10px" }}/>
+                  <KitStatusTag status={kit.status} availableNow={kit.current_record_status === 'available'}/>
                   <br/>
                   <span style={{ fontSize: "24px", marginRight: "5px" }}>{kit.name}</span>
                 </>
               }
               description={
                 <div style={{ fontSize: "15px", color: "black" }}>
-                  <PortableText value={kit.description}/>
+                  <NotionPageContentRenderer value={kit.content}/>
                 </div>
               }
           />

@@ -4,12 +4,10 @@ import React from "react";
 import Meta from "antd/lib/card/Meta";
 import Link from "next/link";
 import {useAllKits} from "../util/services";
-import {KitOverview} from "../types/types";
-import {toPlainText} from "@portabletext/react";
-import {urlFor} from "../util/images";
 import {KitStatusTag, KitTypeTag} from "../components/tags";
 import Head from "next/head";
 import styles from "./kits.module.css";
+import {KitOverview} from "../util/data-client";
 
 const KitCardSkeleton: React.FC = () => (
   <Card
@@ -30,7 +28,7 @@ const KitCard: React.FC<{ kit: KitOverview, disabled?: boolean }> = ({ kit, disa
           hoverable
           cover={
             <div style={{ height: "200px" }}>
-              {kit.cover && <img src={urlFor(kit.cover)} alt="" style={{ height: "200px" }}/>}
+              {kit.cover__img[0] && <img src={kit.cover__img[0] + '&width=800'} alt="" style={{ height: "200px" }}/>}
             </div>
           }
           style={{ width: "300px", height: "389px", opacity: disabled ? 0.5 : 1 }}
@@ -38,8 +36,8 @@ const KitCard: React.FC<{ kit: KitOverview, disabled?: boolean }> = ({ kit, disa
           <Meta
             title={
               <>
-                <KitTypeTag type={kit.type} style={{ marginBottom: "10px" }}/>
-                <KitStatusTag status={kit.status} availableNow={kit.availableNow}/>
+                <KitTypeTag type={kit.tags[0]} style={{ marginBottom: "10px" }}/>
+                <KitStatusTag status={kit.status} availableNow={kit.current_record_status !== 'available'}/>
                 <br/>
                 <Typography.Text style={{ fontSize: "18px", marginRight: "5px" }}>
                   {kit.name}
@@ -48,7 +46,7 @@ const KitCard: React.FC<{ kit: KitOverview, disabled?: boolean }> = ({ kit, disa
             }
             description={
               <Typography.Paragraph ellipsis={{ rows: 3 }}>
-                {kit.description && toPlainText(kit.description)}
+                {kit.description}
               </Typography.Paragraph>
             }
           />
@@ -81,14 +79,15 @@ const CardGrid: React.FC<{ kits?: KitOverview[] }> = ({ kits }) => {
 
 const Kits: NextPage = () => {
   const { data: kits } = useAllKits()
-  const unAvailableKits = kits?.filter((kit: KitOverview) => kit.status === "unavailable")
+  const unAvailableKits = kits?.filter((kit: KitOverview) => kit.status === "inactive")
+  console.log(kits)
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "30px" }}>
       <Head>
         <title>光子映画器材库 - 所有器材</title>
       </Head>
-      <CardGrid kits={kits?.filter((kit: KitOverview) => kit.status === "available")}/>
+      <CardGrid kits={kits?.filter((kit: KitOverview) => kit.status === "active")}/>
       {unAvailableKits && unAvailableKits.length > 0 && (
         <>
           <Divider style={{ marginTop: "50px", marginBottom: "30px" }}>暂不可用器材</Divider>

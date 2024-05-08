@@ -1,10 +1,8 @@
-import {SanityImageSource} from "@sanity/image-url/lib/types/types";
 import React, {useState} from "react";
 import {Carousel, Image} from "antd";
-import {urlFor} from "../util/images";
 
 interface KitImagesProps {
-  images: SanityImageSource[]
+  images: string[]
   width: any
   height: any
 }
@@ -22,7 +20,7 @@ export const KitImages: React.FC<KitImagesProps> = ({ images, width, height }) =
         {images?.map((image, index) => (
           <Image
             key={index}
-            src={urlFor(image)}
+            src={image + '&width=800'}
             width={width}
             height={height}
             preview={{ visible: false }}
@@ -34,7 +32,7 @@ export const KitImages: React.FC<KitImagesProps> = ({ images, width, height }) =
       <div style={{ display: 'none' }}>
         <Image.PreviewGroup preview={{ visible, onVisibleChange: vis => setVisible(vis), current: index }}>
           {images?.map((image, index) => (
-            <Image key={index} src={urlFor(image)} />
+            <Image key={index} src={image} />
           ))}
         </Image.PreviewGroup>
       </div>

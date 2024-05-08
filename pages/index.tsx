@@ -1,12 +1,12 @@
-import {PortableText} from "@portabletext/react";
 import {Affix, Button, Divider, Skeleton} from "antd";
 import Link from "next/link";
 import Head from "next/head";
 import React from "react";
 import styles from "./index.module.css"
 import {fetchManual} from "../util/data-client";
-import {PortableTextBlock} from "@portabletext/types";
 import {NextPage} from "next";
+import type {NotionPageContent} from "../util/notion-db";
+import {NotionPageContentRenderer} from "../components/text";
 
 export async function getStaticProps() {
   return {
@@ -17,7 +17,7 @@ export async function getStaticProps() {
   }
 }
 
-const Home: NextPage<{ manual: PortableTextBlock[] }> = ({ manual }) => {
+const Home: NextPage<{ manual: NotionPageContent }> = ({ manual }) => {
   return (
     <div style={{ display: "flex", justifyContent: "center", padding: "30px" }}>
       <Head>
@@ -29,7 +29,7 @@ const Home: NextPage<{ manual: PortableTextBlock[] }> = ({ manual }) => {
             <div style={{ maxWidth: "600px", fontSize: "16px", paddingTop: "30px" }}>
               <span style={{ fontSize: "28px", fontWeight: "bold" }}>器材库使用须知</span>
               <Divider/>
-              <PortableText value={manual}/>
+              <NotionPageContentRenderer value={manual}/>
             </div>
             <Affix offsetBottom={0}>
               <div className={styles.actionPanel}>

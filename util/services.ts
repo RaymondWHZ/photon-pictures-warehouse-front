@@ -1,23 +1,21 @@
 import useSWR from "swr";
 import axios, {AxiosResponse} from "axios";
-import {ReservationInfo} from "../types/types";
-import moment from "moment";
+import {Kit, KitOverview, ReservationInfo} from "./data-client";
+import {TypeWithContent} from "./notion-db";
 
 export const useAllKits = () => {
-  const today = moment().format("YYYY-MM-DD");
-  const { data, error } = useSWR<AxiosResponse>(`/api/kits?today=${today}`, axios.get)
+  const { data, error } = useSWR<AxiosResponse<{ kits: KitOverview[] }>>(`/api/kits`, axios.get)
   return {
-    data: data?.data.data,
+    data: data?.data.kits as KitOverview[] | undefined,
     error,
     loading: !data && !error
   }
 }
 
 export const useKitDetail = (id: string) => {
-  const today = moment().format("YYYY-MM-DD");
-  const { data, error } = useSWR<AxiosResponse>(`/api/kit?id=${id}&today=${today}`, axios.get)
+  const { data, error } = useSWR<AxiosResponse<{ kit: TypeWithContent<Kit, 'content'> }>>(`/api/kit?id=${id}`, axios.get)
   return {
-    data: data?.data,
+    data: data?.data.kit,
     error,
     loading: !data && !error
   }

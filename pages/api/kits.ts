@@ -1,15 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import {fetchKits} from "../../util/data-client";
-import {KitOverview} from "../../types/types";
+import {fetchKits, KitOverview} from "../../util/data-client";
 
 type Data = {
-  data: KitOverview[]
+  kits: KitOverview[]
 }
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  const result = await fetchKits(req.query.today as string)
-  res.status(200).json({ data: result })
+  const result = await fetchKits()
+  res.status(200).json({ kits: result })
 }

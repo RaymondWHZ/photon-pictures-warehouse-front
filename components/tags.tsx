@@ -1,9 +1,8 @@
 import React from "react";
 import {Tag} from "antd";
-import {KitStatus, KitTypes} from "../types/types";
 
 export interface KitTypeTagProps {
-  type: KitTypes
+  type: string
   style?: React.CSSProperties
 }
 
@@ -21,7 +20,7 @@ export const KitTypeTag: React.FC<KitTypeTagProps> = ({type, style}) => {
 }
 
 export interface KitStatusTagProps {
-  status: KitStatus
+  status: string
   availableNow: boolean
   style?: React.CSSProperties
 }
