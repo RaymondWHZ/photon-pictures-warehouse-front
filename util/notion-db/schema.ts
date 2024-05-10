@@ -40,33 +40,36 @@ const checkboxConfig: NotionPropertyTypeDefinition<'checkbox', boolean> = {
   type: 'checkbox',
   handler: value => value.checkbox
 }
+const checkboxOptions = {
+  ...makeDefaultOptions('checkbox'),
+  boolean: () => checkboxConfig
+}
 export function checkbox() {
-  return {
-    ...makeDefaultOptions('checkbox'),
-    boolean: () => checkboxConfig
-  }
+  return checkboxOptions;
 }
 
 const createdByToName: NotionPropertyTypeDefinition<'created_by', string> = {
   type: 'created_by',
   handler: value => 'name' in value.created_by ? value.created_by.name ?? '' : ''
 }
+const createdByOptions = {
+  ...makeDefaultOptions('created_by'),
+  nameString: () => createdByToName
+}
 export function created_by() {
-  return {
-    ...makeDefaultOptions('created_by'),
-    nameString: () => createdByToName
-  }
+  return createdByOptions;
 }
 
 const createdTimeToString: NotionPropertyTypeDefinition<'created_time', string> = {
   type: 'created_time',
   handler: value => value.created_time
 }
+const createdTimeOptions = {
+  ...makeDefaultOptions('created_time'),
+  timeString: () => createdTimeToString
+}
 export function created_time() {
-  return {
-    ...makeDefaultOptions('created_time'),
-    timeString: () => createdTimeToString
-  }
+  return createdTimeOptions;
 }
 
 export type DateRange = {
@@ -82,67 +85,72 @@ const dateToDateRange: NotionPropertyTypeDefinition<'date', DateRange> = {
     }
   }
 }
+const dateOptions = {
+  ...makeDefaultOptions('date'),
+  dateRange: () => dateToDateRange
+}
 export function date() {
-  return {
-    ...makeDefaultOptions('date'),
-    dateRange: () => dateToDateRange
-  }
+  return dateOptions;
 }
 
 const richTextToPlainText: NotionPropertyTypeDefinition<'rich_text', string> = {
   type: 'rich_text',
   handler: value => packPlainText(value.rich_text)
 }
+const richTextOptions = {
+  ...makeDefaultOptions('rich_text'),
+  plainText: () => richTextToPlainText
+}
 export function rich_text() {
-  return {
-    ...makeDefaultOptions('rich_text'),
-    plainText: () => richTextToPlainText
-  }
+  return richTextOptions;
 }
 
 const titleToPlainText: NotionPropertyTypeDefinition<'title', string> = {
   type: 'title',
   handler: value => packPlainText(value.title)
 }
+const titleOptions = {
+  ...makeDefaultOptions('title'),
+  plainText: () => titleToPlainText
+}
 export function title() {
-  return {
-    ...makeDefaultOptions('title'),
-    plainText: () => titleToPlainText
-  }
+  return titleOptions;
 }
 
 const relationToIds: NotionPropertyTypeDefinition<'relation', string[]> = {
   type: 'relation',
   handler: value => value.relation.map(relation => relation.id)
 }
+const relationOptions = {
+  ...makeDefaultOptions('relation'),
+  ids: () => relationToIds
+}
 export function relation() {
-  return {
-    ...makeDefaultOptions('relation'),
-    ids: () => relationToIds
-  }
+  return relationOptions;
 }
 
 const statusToNameString: NotionPropertyTypeDefinition<'status', string> = {
   type: 'status',
   handler: value => value.status?.name ?? ''
 }
-export function status() {
-  return {
-    ...makeDefaultOptions('status'),
-    string: () => statusToNameString,
-    stringEnum: <T extends string>(values: readonly T[]): NotionPropertyTypeDefinition<'status', T> => {
-      return {
-        type: 'status',
-        handler: (value: ValueType<'status'>): T => {
-          const name = value.status?.name;
-          if (!name || !values.includes(name as T)) {
-            throw Error('Invalid status: ' + name);
-          }
-          return name as T;
+const statusOptions = {
+  ...makeDefaultOptions('status'),
+  string: () => statusToNameString,
+  stringEnum: <T extends string>(values: readonly T[]): NotionPropertyTypeDefinition<'status', T> => {
+    return {
+      type: 'status',
+      handler: (value: ValueType<'status'>): T => {
+        const name = value.status?.name;
+        if (!name || !values.includes(name as T)) {
+          throw Error('Invalid status: ' + name);
         }
+        return name as T;
       }
-    },
-  }
+    }
+  },
+}
+export function status() {
+  return statusOptions;
 }
 
 const numberToNumberDefaultZero: NotionPropertyTypeDefinition<'number', number> = {
@@ -194,14 +202,15 @@ const formulaToDateRange: NotionPropertyTypeDefinition<'formula', DateRange> = {
     }
   }
 }
+const formulaOptions = {
+  ...makeDefaultOptions('formula'),
+  string: () => formulaToString,
+  booleanDefaultFalse: () => formulaToBooleanDefaultFalse,
+  numberDefaultZero: () => formulaToNumberDefaultZero,
+  dateRange: () => formulaToDateRange
+}
 export function formula() {
-  return {
-    ...makeDefaultOptions('formula'),
-    string: () => formulaToString,
-    booleanDefaultFalse: () => formulaToBooleanDefaultFalse,
-    numberDefaultZero: () => formulaToNumberDefaultZero,
-    dateRange: () => formulaToDateRange
-  }
+  return formulaOptions;
 }
 
 const filesToUrls: NotionPropertyTypeDefinition<'files', string[]> = {
@@ -260,87 +269,90 @@ const filesToSingleNotionImageUrl: NotionPropertyTypeDefinition<'files', string>
     return '';
   }
 }
+const filesOptions = {
+  ...makeDefaultOptions('files'),
+  urls: () => filesToUrls,
+  singleUrl: () => filesToSingleUrl,
+  notionImageUrls: () => filesToNotionImageUrls,
+  singleNotionImageUrl: () => filesToSingleNotionImageUrl
+}
 export function files() {
-  return {
-    ...makeDefaultOptions('files'),
-    urls: () => filesToUrls,
-    singleUrl: () => filesToSingleUrl,
-    notionImageUrls: () => filesToNotionImageUrls,
-    singleNotionImageUrl: () => filesToSingleNotionImageUrl
-  }
+  return filesOptions;
 }
 
 const selectToNameString: NotionPropertyTypeDefinition<'select', string> = {
   type: 'select',
   handler: value => value.select?.name ?? ''
 }
-
-export function select() {
-  return {
-    ...makeDefaultOptions('select'),
-    string: () => selectToNameString,
-    stringEnum: <T extends string>(values: T[]): NotionPropertyTypeDefinition<'select', T> => {
-      return {
-        type: 'select',
-        handler: (value: ValueType<'select'>): T => {
-          const name = value.select?.name;
-          if (!name || !values.includes(name as T)) {
-            throw Error('Invalid status');
-          }
-          return name as T;
+const selectOptions = {
+  ...makeDefaultOptions('select'),
+  string: () => selectToNameString,
+  stringEnum: <T extends string>(values: T[]): NotionPropertyTypeDefinition<'select', T> => {
+    return {
+      type: 'select',
+      handler: (value: ValueType<'select'>): T => {
+        const name = value.select?.name;
+        if (!name || !values.includes(name as T)) {
+          throw Error('Invalid status');
         }
+        return name as T;
       }
-    },
-    optionalStringEnum: <T extends string>(values: T[]): NotionPropertyTypeDefinition<'status', T | undefined> => {
-      return {
-        type: 'status',
-        handler: (value: ValueType<'status'>): T | undefined => {
-          const name = value.status?.name;
-          if (!name) {
-            return undefined;
-          }
-          if (!values.includes(name as T)) {
-            throw Error('Invalid status');
-          }
-          return name as T;
+    }
+  },
+  optionalStringEnum: <T extends string>(values: T[]): NotionPropertyTypeDefinition<'status', T | undefined> => {
+    return {
+      type: 'status',
+      handler: (value: ValueType<'status'>): T | undefined => {
+        const name = value.status?.name;
+        if (!name) {
+          return undefined;
         }
+        if (!values.includes(name as T)) {
+          throw Error('Invalid status');
+        }
+        return name as T;
       }
     }
   }
+}
+export function select() {
+  return selectOptions;
 }
 
 const multiSelectToNameStrings: NotionPropertyTypeDefinition<'multi_select', string[]> = {
   type: 'multi_select',
   handler: value => value.multi_select.map(option => option.name)
 }
-export function multi_select() {
-  return {
-    ...makeDefaultOptions('multi_select'),
-    strings: () => multiSelectToNameStrings,
-    stringEnums: <T extends string>(values: T[]): NotionPropertyTypeDefinition<'multi_select', T> => {
-      return {
-        type: 'multi_select',
-        handler: (value: ValueType<'multi_select'>): T => {
-          const names = value.multi_select.map(option => option.name);
-          if (!names.every(name => values.includes(name as T))) {
-            throw Error('Invalid status');
-          }
-          return names as any;
+const multiSelectOptions = {
+  ...makeDefaultOptions('multi_select'),
+  strings: () => multiSelectToNameStrings,
+  stringEnums: <T extends string>(values: T[]): NotionPropertyTypeDefinition<'multi_select', T> => {
+    return {
+      type: 'multi_select',
+      handler: (value: ValueType<'multi_select'>): T => {
+        const names = value.multi_select.map(option => option.name);
+        if (!names.every(name => values.includes(name as T))) {
+          throw Error('Invalid status');
         }
+        return names as any;
       }
     }
   }
+}
+export function multi_select() {
+  return multiSelectOptions;
 }
 
 const emailToString: NotionPropertyTypeDefinition<'email', string> = {
   type: 'email',
   handler: value => value.email ?? ''
 }
+const emailOptions = {
+  ...makeDefaultOptions('email'),
+  string: () => emailToString
+}
 export function email() {
-  return {
-    ...makeDefaultOptions('email'),
-    string: () => emailToString
-  }
+  return emailOptions;
 }
 
 const rollupToDateRange: NotionPropertyTypeDefinition<'rollup', DateRange> = {
@@ -367,23 +379,23 @@ const rollupToNumberDefaultZero: NotionPropertyTypeDefinition<'rollup', number> 
     return 0;
   }
 }
-
 export type RollupArrayType = Extract<ValueType<'rollup'>['rollup'], { type: 'array' }>['array']
-export function rollup() {
-  return {
-    ...makeDefaultOptions('rollup'),
-    dateRange: () => rollupToDateRange,
-    numberDefaultZero: () => rollupToNumberDefaultZero,
-    bindArrayUsing: <R>(handler: (value: RollupArrayType) => R): NotionPropertyTypeDefinition<'rollup', R> => {
-      return {
-        type: 'rollup',
-        handler: (value: ValueType<'rollup'>): R => {
-          if (value.rollup.type === 'array') {
-            return handler(value.rollup.array);
-          }
-          throw Error('Invalid rollup type');
+const rollupOptions = {
+  ...makeDefaultOptions('rollup'),
+  dateRange: () => rollupToDateRange,
+  numberDefaultZero: () => rollupToNumberDefaultZero,
+  bindArrayUsing: <R>(handler: (value: RollupArrayType) => R): NotionPropertyTypeDefinition<'rollup', R> => {
+    return {
+      type: 'rollup',
+      handler: (value: ValueType<'rollup'>): R => {
+        if (value.rollup.type === 'array') {
+          return handler(value.rollup.array);
         }
+        throw Error('Invalid rollup type');
       }
     }
   }
+}
+export function rollup() {
+  return rollupOptions;
 }
