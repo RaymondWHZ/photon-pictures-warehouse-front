@@ -5,11 +5,11 @@ import type {
 } from "@notionhq/client/build/src/api-endpoints";
 import {Client, isFullPage} from "@notionhq/client";
 import type {
-  DBInfer,
+  DBInfer, DBMutateInfer,
   DBSchemasType,
   DBSchemaType,
   DBSchemaValueDefinition, NotionPageContent,
-  NotionPropertyTypes,
+  NotionPropertyTypeEnum, ValueComposer,
   ValueHandler,
   ValueType
 } from "./types";
@@ -28,7 +28,7 @@ function processRow<T extends DBSchemaType>(
       transformedResult[key] = result.id as any;
       continue;
     }
-    const type: NotionPropertyTypes = def.type;
+    const type: NotionPropertyTypeEnum = def.type;
     const [name, option] = key.toString().split('__', 2);
     if (!(name in result.properties)) {
       throw Error(`Property ${name} is not found`);
@@ -64,6 +64,27 @@ function processKVResults<
     result[key] = processedResult[valueProp];
   }
   return result;
+}
+
+function createMutateData<T extends DBSchemaType>(
+  data: DBMutateInfer<T>,
+  schema: T
+): CreatePageParameters['properties'] {
+  const transformedData = {} as CreatePageParameters['properties'];
+  for (const [key, value] of Object.entries(data) as [keyof T, any][]) {
+    const def: DBSchemaValueDefinition = schema[key];
+    if (def === '__id') {
+      throw Error('Cannot mutate __id');
+    }
+    if (!('composer' in def)) {
+      throw Error('Cannot mutate without composer');
+    }
+    const type: NotionPropertyTypeEnum = def.type;
+    const [name] = key.toString().split('__', 1);
+    const composer = def.composer as ValueComposer<typeof type>;
+    transformedData[name] = composer(value);
+  }
+  return transformedData;
 }
 
 export interface NotionDBClientOptions<DBS extends DBSchemasType> {
@@ -247,15 +268,22 @@ export function createNotionDBClient<
       });
     },
 
-    async insertToDB<T extends DBName>(db: T, data: CreatePageParameters['properties']): Promise<string> {
+    async insertEntry<T extends DBName>(db: T, data: DBMutateInfer<S[T]>): Promise<string> {
       return useDatabaseId(db, async (id) => {
         const result = await client.pages.create({
           parent: {
             database_id: id
           },
-          properties: data
+          properties: createMutateData(data, dbSchemas[db])
         });
         return result.id;
+      });
+    },
+
+    async updateEntry<T extends DBName>(db: T, id: string, data: DBMutateInfer<S[T]>): Promise<void> {
+      await client.pages.update({
+        page_id: id,
+        properties: createMutateData(data, dbSchemas[db])
       });
     }
   };

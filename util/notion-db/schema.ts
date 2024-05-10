@@ -1,4 +1,11 @@
-import type {DBSchemasType, NotionPropertyTypeDefinition, NotionPropertyTypes, ValueHandler, ValueType} from "./types";
+import type {
+  DBSchemasType,
+  NotionPropertyDefinition,
+  NotionMutablePropertyDefinition,
+  NotionPropertyTypeEnum,
+  ValueHandler,
+  ValueType
+} from "./types";
 import type {RichTextItemResponse} from "@notionhq/client/build/src/api-endpoints";
 
 export function createDBSchemas<T extends DBSchemasType>(schema: T): typeof schema {
@@ -17,17 +24,24 @@ function convertNotionImage(pageId: string, preSignedUrl: string) {
     '&table=block';
 }
 
-const makeDefaultOptions = <T extends NotionPropertyTypes>(type: T) => ({
-  raw(): NotionPropertyTypeDefinition<T, ValueType<T>> {
+const makeDefaultOptions = <T extends NotionPropertyTypeEnum>(type: T) => ({
+  raw(): NotionPropertyDefinition<T, ValueType<T>> {
     return {
       type,
       handler: value => value
     }
   },
-  bindUsing<R>(handler: ValueHandler<T, R>): NotionPropertyTypeDefinition<T, R> {
+  handleUsing<R>(handler: ValueHandler<T, R>): NotionPropertyDefinition<T, R> {
     return {
       type,
       handler
+    }
+  },
+  handleAndComposeUsing<R>(handler: ValueHandler<T, R>, composer: (value: R) => any): NotionMutablePropertyDefinition<T, R> {
+    return {
+      type,
+      handler,
+      composer
     }
   }
 })
@@ -36,9 +50,10 @@ export function __id() {
   return '__id' as const;
 }
 
-const checkboxConfig: NotionPropertyTypeDefinition<'checkbox', boolean> = {
+const checkboxConfig: NotionMutablePropertyDefinition<'checkbox', boolean> = {
   type: 'checkbox',
-  handler: value => value.checkbox
+  handler: value => value.checkbox,
+  composer: (value) => value
 }
 const checkboxOptions = {
   ...makeDefaultOptions('checkbox'),
@@ -48,7 +63,7 @@ export function checkbox() {
   return checkboxOptions;
 }
 
-const createdByToName: NotionPropertyTypeDefinition<'created_by', string> = {
+const createdByToName: NotionPropertyDefinition<'created_by', string> = {
   type: 'created_by',
   handler: value => 'name' in value.created_by ? value.created_by.name ?? '' : ''
 }
@@ -60,7 +75,7 @@ export function created_by() {
   return createdByOptions;
 }
 
-const createdTimeToString: NotionPropertyTypeDefinition<'created_time', string> = {
+const createdTimeToString: NotionPropertyDefinition<'created_time', string> = {
   type: 'created_time',
   handler: value => value.created_time
 }
@@ -76,14 +91,15 @@ export type DateRange = {
   start: string
   end: string
 }
-const dateToDateRange: NotionPropertyTypeDefinition<'date', DateRange> = {
+const dateToDateRange: NotionMutablePropertyDefinition<'date', DateRange> = {
   type: 'date',
   handler: (value) => {
     return {
       start: value.date?.start ?? '',
       end: value.date?.end ?? ''
     }
-  }
+  },
+  composer: (value) => value
 }
 const dateOptions = {
   ...makeDefaultOptions('date'),
@@ -93,9 +109,10 @@ export function date() {
   return dateOptions;
 }
 
-const richTextToPlainText: NotionPropertyTypeDefinition<'rich_text', string> = {
+const richTextToPlainText: NotionMutablePropertyDefinition<'rich_text', string> = {
   type: 'rich_text',
-  handler: value => packPlainText(value.rich_text)
+  handler: value => packPlainText(value.rich_text),
+  composer: (value) => [{ text: { content: value } }]
 }
 const richTextOptions = {
   ...makeDefaultOptions('rich_text'),
@@ -105,9 +122,10 @@ export function rich_text() {
   return richTextOptions;
 }
 
-const titleToPlainText: NotionPropertyTypeDefinition<'title', string> = {
+const titleToPlainText: NotionMutablePropertyDefinition<'title', string> = {
   type: 'title',
-  handler: value => packPlainText(value.title)
+  handler: value => packPlainText(value.title),
+  composer: (value) => [{ text: { content: value } }]
 }
 const titleOptions = {
   ...makeDefaultOptions('title'),
@@ -117,26 +135,34 @@ export function title() {
   return titleOptions;
 }
 
-const relationToIds: NotionPropertyTypeDefinition<'relation', string[]> = {
+const relationToIds: NotionMutablePropertyDefinition<'relation', string[]> = {
   type: 'relation',
-  handler: value => value.relation.map(relation => relation.id)
+  handler: value => value.relation.map(relation => relation.id),
+  composer: (value) => value.map(id => ({ id }))
+}
+const relationToSingleId: NotionMutablePropertyDefinition<'relation', string> = {
+  type: 'relation',
+  handler: value => value.relation[0].id ?? '',
+  composer: (value) => [{ id: value }]
 }
 const relationOptions = {
   ...makeDefaultOptions('relation'),
-  ids: () => relationToIds
+  ids: () => relationToIds,
+  singleId: () => relationToSingleId
 }
 export function relation() {
   return relationOptions;
 }
 
-const statusToNameString: NotionPropertyTypeDefinition<'status', string> = {
+const statusToNameString: NotionMutablePropertyDefinition<'status', string> = {
   type: 'status',
-  handler: value => value.status?.name ?? ''
+  handler: value => value.status?.name ?? '',
+  composer: (value) => ({ name: value })
 }
 const statusOptions = {
   ...makeDefaultOptions('status'),
   string: () => statusToNameString,
-  stringEnum: <T extends string>(values: readonly T[]): NotionPropertyTypeDefinition<'status', T> => {
+  stringEnum: <T extends string>(values: readonly T[]): NotionPropertyDefinition<'status', T> => {
     return {
       type: 'status',
       handler: (value: ValueType<'status'>): T => {
@@ -153,9 +179,10 @@ export function status() {
   return statusOptions;
 }
 
-const numberToNumberDefaultZero: NotionPropertyTypeDefinition<'number', number> = {
+const numberToNumberDefaultZero: NotionMutablePropertyDefinition<'number', number> = {
   type: 'number',
-  handler: value => value.number ?? 0
+  handler: value => value.number ?? 0,
+  composer: (value) => value
 }
 export function number() {
   return {
@@ -164,7 +191,7 @@ export function number() {
   }
 }
 
-const formulaToString: NotionPropertyTypeDefinition<'formula', string> = {
+const formulaToString: NotionPropertyDefinition<'formula', string> = {
   type: 'formula',
   handler: value => {
     if (value.formula.type === 'string') {
@@ -179,15 +206,15 @@ const formulaToString: NotionPropertyTypeDefinition<'formula', string> = {
     return '';
   }
 }
-const formulaToBooleanDefaultFalse: NotionPropertyTypeDefinition<'formula', boolean> = {
+const formulaToBooleanDefaultFalse: NotionPropertyDefinition<'formula', boolean> = {
   type: 'formula',
   handler: value => value.formula.type === 'boolean' ? value.formula.boolean ?? false : false
 }
-const formulaToNumberDefaultZero: NotionPropertyTypeDefinition<'formula', number> = {
+const formulaToNumberDefaultZero: NotionPropertyDefinition<'formula', number> = {
   type: 'formula',
   handler: value => value.formula.type === 'number' ? value.formula.number ?? 0 : 0
 }
-const formulaToDateRange: NotionPropertyTypeDefinition<'formula', DateRange> = {
+const formulaToDateRange: NotionPropertyDefinition<'formula', DateRange> = {
   type: 'formula',
   handler: value => {
     if (value.formula.type === 'date') {
@@ -213,7 +240,7 @@ export function formula() {
   return formulaOptions;
 }
 
-const filesToUrls: NotionPropertyTypeDefinition<'files', string[]> = {
+const filesToUrls: NotionPropertyDefinition<'files', string[]> = {
   type: 'files',
   handler: (value) => value.files.reduce((acc, file) => {
     let result: string | undefined = undefined;
@@ -228,7 +255,7 @@ const filesToUrls: NotionPropertyTypeDefinition<'files', string[]> = {
     return acc.concat(result);
   }, [] as string[])
 }
-const filesToSingleUrl: NotionPropertyTypeDefinition<'files', string> = {
+const filesToSingleUrl: NotionPropertyDefinition<'files', string> = {
   type: 'files',
   handler: (value) => {
     const file = value.files[0];
@@ -243,7 +270,7 @@ const filesToSingleUrl: NotionPropertyTypeDefinition<'files', string> = {
     return '';
   }
 }
-const filesToNotionImageUrls: NotionPropertyTypeDefinition<'files', string[]> = {
+const filesToNotionImageUrls: NotionPropertyDefinition<'files', string[]> = {
   type: 'files',
   handler: (value, option, pageId) => value.files.reduce((acc, file) => {
     let result: string | undefined = undefined;
@@ -256,7 +283,7 @@ const filesToNotionImageUrls: NotionPropertyTypeDefinition<'files', string[]> = 
     return acc.concat(result);
   }, [] as string[])
 }
-const filesToSingleNotionImageUrl: NotionPropertyTypeDefinition<'files', string> = {
+const filesToSingleNotionImageUrl: NotionPropertyDefinition<'files', string> = {
   type: 'files',
   handler: (value, option, pageId) => {
     const file = value.files[0];
@@ -280,14 +307,15 @@ export function files() {
   return filesOptions;
 }
 
-const selectToNameString: NotionPropertyTypeDefinition<'select', string> = {
+const selectToNameString: NotionMutablePropertyDefinition<'select', string> = {
   type: 'select',
-  handler: value => value.select?.name ?? ''
+  handler: value => value.select?.name ?? '',
+  composer: (value) => ({ name: value })
 }
 const selectOptions = {
   ...makeDefaultOptions('select'),
   string: () => selectToNameString,
-  stringEnum: <T extends string>(values: T[]): NotionPropertyTypeDefinition<'select', T> => {
+  stringEnum: <T extends string>(values: T[]): NotionPropertyDefinition<'select', T> => {
     return {
       type: 'select',
       handler: (value: ValueType<'select'>): T => {
@@ -299,7 +327,7 @@ const selectOptions = {
       }
     }
   },
-  optionalStringEnum: <T extends string>(values: T[]): NotionPropertyTypeDefinition<'status', T | undefined> => {
+  optionalStringEnum: <T extends string>(values: T[]): NotionPropertyDefinition<'status', T | undefined> => {
     return {
       type: 'status',
       handler: (value: ValueType<'status'>): T | undefined => {
@@ -319,14 +347,15 @@ export function select() {
   return selectOptions;
 }
 
-const multiSelectToNameStrings: NotionPropertyTypeDefinition<'multi_select', string[]> = {
+const multiSelectToNameStrings: NotionMutablePropertyDefinition<'multi_select', string[]> = {
   type: 'multi_select',
-  handler: value => value.multi_select.map(option => option.name)
+  handler: value => value.multi_select.map(option => option.name),
+  composer: (value) => value.map(name => ({ name }))
 }
 const multiSelectOptions = {
   ...makeDefaultOptions('multi_select'),
   strings: () => multiSelectToNameStrings,
-  stringEnums: <T extends string>(values: T[]): NotionPropertyTypeDefinition<'multi_select', T> => {
+  stringEnums: <T extends string>(values: T[]): NotionPropertyDefinition<'multi_select', T> => {
     return {
       type: 'multi_select',
       handler: (value: ValueType<'multi_select'>): T => {
@@ -343,9 +372,10 @@ export function multi_select() {
   return multiSelectOptions;
 }
 
-const emailToString: NotionPropertyTypeDefinition<'email', string> = {
+const emailToString: NotionMutablePropertyDefinition<'email', string> = {
   type: 'email',
-  handler: value => value.email ?? ''
+  handler: value => value.email ?? '',
+  composer: (value) => value
 }
 const emailOptions = {
   ...makeDefaultOptions('email'),
@@ -355,7 +385,7 @@ export function email() {
   return emailOptions;
 }
 
-const rollupToDateRange: NotionPropertyTypeDefinition<'rollup', DateRange> = {
+const rollupToDateRange: NotionPropertyDefinition<'rollup', DateRange> = {
   type: 'rollup',
   handler: value => {
     if (value.rollup.type === 'date') {
@@ -370,7 +400,7 @@ const rollupToDateRange: NotionPropertyTypeDefinition<'rollup', DateRange> = {
     }
   }
 }
-const rollupToNumberDefaultZero: NotionPropertyTypeDefinition<'rollup', number> = {
+const rollupToNumberDefaultZero: NotionPropertyDefinition<'rollup', number> = {
   type: 'rollup',
   handler: value => {
     if (value.rollup.type === 'number') {
@@ -384,7 +414,7 @@ const rollupOptions = {
   ...makeDefaultOptions('rollup'),
   dateRange: () => rollupToDateRange,
   numberDefaultZero: () => rollupToNumberDefaultZero,
-  bindArrayUsing: <R>(handler: (value: RollupArrayType) => R): NotionPropertyTypeDefinition<'rollup', R> => {
+  handleArrayUsing: <R>(handler: (value: RollupArrayType) => R): NotionPropertyDefinition<'rollup', R> => {
     return {
       type: 'rollup',
       handler: (value: ValueType<'rollup'>): R => {

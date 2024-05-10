@@ -28,7 +28,7 @@ const dbSchemas  = createDBSchemas({
     value: number().numberDefaultZero(),
     status: status().stringEnum(['active', 'inactive']),
     current_record_status: formula().string(),
-    record_dates: rollup().bindArrayUsing((value): DateRange[] => {
+    record_dates: rollup().handleArrayUsing((value): DateRange[] => {
       return value.reduce((acc, item) => {
         if (item.type === 'date' && item.date && item.date.end) {
           return acc.concat({
@@ -39,7 +39,7 @@ const dbSchemas  = createDBSchemas({
         return acc
       }, [] as DateRange[])
     }),
-    record_status: rollup().bindArrayUsing((value): string[] => {
+    record_status: rollup().handleArrayUsing((value): string[] => {
       return value.reduce((acc, item) => {
         if (item.type === 'status' && item.status) {
           return acc.concat(item.status.name)
@@ -50,7 +50,7 @@ const dbSchemas  = createDBSchemas({
   },
   reservations: {
     borrower: title().plainText(),
-    kit: relation().ids(),
+    kit: relation().singleId(),
     status: status().string(),
     dates: date().dateRange(),
     project: rich_text().plainText(),
@@ -110,17 +110,17 @@ export interface ReservationInfo {
 }
 
 export async function createReservation(reservation: ReservationInfo): Promise<string> {
-  return await client.insertToDB('reservations', {
-    borrower: [{ text: { content: reservation.name } }],
-    kit: [{ id: reservation.kitId }],
+  return await client.insertEntry('reservations', {
+    borrower: reservation.name,
+    kit: reservation.kitId,
     email: reservation.email,
-    wechat: [{ text: { content: reservation.wechat } }],
+    wechat: reservation.wechat,
     dates: {
       start: reservation.startDate,
       end: reservation.endDate
     },
-    project: [{ text: { content: reservation.project } }],
-    usage: [{ text: { content: reservation.usage } }],
-    status: { name: 'pending' }
+    project: reservation.project,
+    usage: reservation.usage,
+    status: 'pending'
   });
 }
