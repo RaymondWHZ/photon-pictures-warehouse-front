@@ -2,7 +2,7 @@ import {
   createDBSchemas,
   createNotionDBClient, date, status,
   DBObjectTypesInfer, NotionPageContent, relation, rich_text, title,
-  TypeWithContent, number, multi_select, __id, files, formula, email, rollup, DateRange
+  TypeWithContent, number, multi_select, __id, files, formula, email, rollup, DateRange, unique_id
 } from "./notion-db";
 
 const dbSchemas  = createDBSchemas({
@@ -49,6 +49,7 @@ const dbSchemas  = createDBSchemas({
     }),
   },
   reservations: {
+    id: unique_id().stringWithPrefix(),
     borrower: title().plainText(),
     kit: relation().singleId(),
     status: status().string(),
@@ -110,7 +111,7 @@ export interface ReservationInfo {
 }
 
 export async function createReservation(reservation: ReservationInfo): Promise<string> {
-  return await client.insertEntry('reservations', {
+  const result = await client.insertEntry('reservations', {
     borrower: reservation.name,
     kit: reservation.kitId,
     email: reservation.email,
@@ -123,4 +124,5 @@ export async function createReservation(reservation: ReservationInfo): Promise<s
     usage: reservation.usage,
     status: 'pending'
   });
+  return result.id;
 }

@@ -484,3 +484,21 @@ const urlOptions = {
 export function url() {
   return urlOptions;
 }
+
+const uniqueIdOptions = {
+  ...makeDefaultOptions('unique_id'),
+  number() {
+    return this.handleUsing(value => value.number!);
+  },
+  stringWithPrefix() {
+    return this.handleUsing(value => {
+      if (value.prefix) {
+        return value.prefix + value.number;
+      }
+      return value.number!.toString();
+    });
+  }
+}
+export function unique_id() {
+  return uniqueIdOptions;
+}

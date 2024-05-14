@@ -270,7 +270,7 @@ export function createNotionDBClient<
       });
     },
 
-    async insertEntry<T extends DBName>(db: T, data: DBMutateInfer<S[T]>): Promise<string> {
+    async insertEntry<T extends DBName>(db: T, data: DBMutateInfer<S[T]>): Promise<DBInfer<S[T]>> {
       return useDatabaseId(db, async (id) => {
         const result = await client.pages.create({
           parent: {
@@ -278,15 +278,22 @@ export function createNotionDBClient<
           },
           properties: createMutateData(data, dbSchemas[db])
         });
-        return result.id;
+        if (!('properties' in result)) {
+          throw Error('Not a full page');
+        }
+        return processRow(result, dbSchemas[db]);
       });
     },
 
-    async updateEntry<T extends DBName>(db: T, id: string, data: DBMutateInfer<S[T]>): Promise<void> {
-      await client.pages.update({
+    async updateEntry<T extends DBName>(db: T, id: string, data: DBMutateInfer<S[T]>): Promise<DBInfer<S[T]>> {
+      const result = await client.pages.update({
         page_id: id,
         properties: createMutateData(data, dbSchemas[db])
       });
+      if (!('properties' in result)) {
+        throw Error('Not a full page');
+      }
+      return processRow(result, dbSchemas[db]);
     }
   };
 }
