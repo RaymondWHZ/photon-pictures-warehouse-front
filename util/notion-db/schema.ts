@@ -502,3 +502,10 @@ const uniqueIdOptions = {
 export function unique_id() {
   return uniqueIdOptions;
 }
+
+const verificationOptions = {
+  ...makeDefaultOptions('verification')
+}
+export function verification() {
+  return verificationOptions;
+}
