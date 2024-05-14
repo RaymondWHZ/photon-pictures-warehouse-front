@@ -1,4 +1,4 @@
-import React, {PropsWithChildren, useMemo, useRef, useState} from "react";
+import React, {PropsWithChildren, useEffect, useMemo, useRef, useState} from "react";
 import {Button, Calendar, Card, Checkbox, DatePicker, Divider, Form, Input, message, Modal, Result} from "antd";
 import moment from "moment";
 import {sendReservation} from "../util/services";
@@ -58,6 +58,8 @@ const ContactModal: React.FC<ContactModalProps> = ({ borrowInfo, onClose }) => {
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
+  const [saveContact, setSaveContact] = useState(false)
+  const [contactExists, setContactExists] = useState(false)
   const abortController = useRef<AbortController | null>(null)
 
   const onSubmit = async (data: any) => {
@@ -68,6 +70,11 @@ const ContactModal: React.FC<ContactModalProps> = ({ borrowInfo, onClose }) => {
       ...data
     }, abortController.current)
     abortController.current = null
+    if (saveContact) {
+      localStorage.setItem("contact", JSON.stringify(data))
+    } else {
+      localStorage.removeItem("contact")
+    }
     setSubmitting(false)
     if (result) {
       setSuccess(true)
@@ -76,24 +83,53 @@ const ContactModal: React.FC<ContactModalProps> = ({ borrowInfo, onClose }) => {
     }
   }
 
+  useEffect(() => {
+    if (borrowInfo) {
+      const contactString = localStorage.getItem("contact")
+      if (contactString) {
+        form.setFieldsValue(JSON.parse(contactString))
+        setSaveContact(true)
+        setContactExists(true)
+      }
+    }
+  }, [!!borrowInfo]);
+
   const onCloseCancel = () => {
     abortController.current?.abort()
     setSubmitting(false)
     setSuccess(false)
+    setSaveContact(false)
     form.resetFields()
     onClose()
+  }
+
+  const onClearContact = () => {
+    localStorage.removeItem("contact")
+    setSaveContact(false)
+    setContactExists(false)
+    form.resetFields()
   }
 
   return (
     <Modal
       title="填写联系信息"
       open={borrowInfo}
-      okText="确认提交申请"
-      cancelText="取消"
-      onOk={() => form.submit()}
       onCancel={onCloseCancel}
-      confirmLoading={submitting}
-      footer={success ? <></> : undefined}
+      footer={success ? <></> :
+        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+          <Checkbox checked={saveContact} onChange={e => setSaveContact(e.target.checked)}>
+            保存联系方式以便下次填写
+          </Checkbox>
+          {contactExists &&
+            <Button style={{ marginLeft: -16 }} type="link" onClick={onClearContact}>
+              清除记录
+            </Button>
+          }
+          <div style={{ flex: 1 }} />
+          <Button onClick={onCloseCancel}>取消</Button>
+          <Button type="primary" onClick={form.submit} loading={submitting}>确认提交申请</Button>
+        </div>
+      }
     >
       {success ?
         <Result
