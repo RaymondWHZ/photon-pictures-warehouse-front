@@ -271,14 +271,14 @@ const multiSelectOptions = {
   },
   stringEnums<T extends string>(values: T[]) {
     return this.handleAndComposeUsing({
-      handler: (value: ValueType<'multi_select'>): T[] => {
+      handler: value => {
         const names = value.map(option => option.name);
         if (!names.every(name => values.includes(name as T))) {
           throw Error('Invalid status');
         }
         return names as T[];
       },
-      composer: (value: T[]) => {
+      composer: value => {
         if (!value.every(name => values.includes(name))) {
           throw Error('Invalid status');
         }
@@ -410,7 +410,7 @@ const selectOptions = {
       composer: (value) => ({ name: value })
     })
   },
-  stringEnum<T extends string | undefined>(values: readonly T[]) {
+  stringEnum<T extends string | undefined>(values: T[]) {
     return this.handleAndComposeUsing({
       handler: value => {
         const name = value?.name;
@@ -419,7 +419,7 @@ const selectOptions = {
         }
         return name as T;
       },
-      composer: (value) => {
+      composer: value => {
         if (!values.includes(value)) {
           throw Error('Invalid status: ' + value);
         }
@@ -440,7 +440,7 @@ const statusOptions = {
       composer: (value) => ({ name: value })
     })
   },
-  stringEnum<T extends string>(values: readonly T[]) {
+  stringEnum<T extends string>(values: T[]) {
     return this.handleAndComposeUsing({
       handler: value => {
         const name = value?.name;
@@ -449,7 +449,7 @@ const statusOptions = {
         }
         return name as T;
       },
-      composer: (value) => {
+      composer: value => {
         if (!value || !values.includes(value)) {
           throw Error('Invalid status: ' + value);
         }
