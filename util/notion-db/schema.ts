@@ -493,7 +493,7 @@ const uniqueIdOptions = {
   stringWithPrefix() {
     return this.handleUsing(value => {
       if (value.prefix) {
-        return value.prefix + value.number;
+        return value.prefix + '-' + value.number!.toString();
       }
       return value.number!.toString();
     });
