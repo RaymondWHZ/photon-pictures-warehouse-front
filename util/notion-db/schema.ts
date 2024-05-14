@@ -4,7 +4,7 @@ import type {
   NotionMutablePropertyDefinition,
   NotionPropertyTypeEnum,
   ValueHandler,
-  ValueType
+  ValueType, ValueComposer
 } from "./types";
 import type {RichTextItemResponse} from "@notionhq/client/build/src/api-endpoints";
 
@@ -24,64 +24,86 @@ function convertNotionImage(pageId: string, preSignedUrl: string) {
     '&table=block';
 }
 
-const makeDefaultOptions = <T extends NotionPropertyTypeEnum>(type: T) => ({
-  raw(): NotionPropertyDefinition<T, ValueType<T>> {
-    return {
-      type,
-      handler: value => value
-    }
-  },
-  handleUsing<R>(handler: ValueHandler<T, R>): NotionPropertyDefinition<T, R> {
-    return {
-      type,
-      handler
-    }
-  },
-  handleAndComposeUsing<R>(handler: ValueHandler<T, R>, composer: (value: R) => any): NotionMutablePropertyDefinition<T, R> {
-    return {
-      type,
-      handler,
-      composer
+const makeDefaultOptions = <T extends NotionPropertyTypeEnum>(type: T) => {
+  const valueToRaw: NotionPropertyDefinition<T, ValueType<T>> = {
+    type,
+    handler: value => value
+  };
+  return {
+    raw(): NotionPropertyDefinition<T, ValueType<T>> {
+      return valueToRaw;
+    },
+    rawWithDefault(defaultValue: NonNullable<ValueType<T>>): NotionPropertyDefinition<T, NonNullable<ValueType<T>>> {
+      return {
+        type,
+        handler: value => value ?? defaultValue,
+      }
+    },
+    handleUsing<R>(handler: ValueHandler<T, R>): NotionPropertyDefinition<T, R> {
+      return {
+        type,
+        handler
+      }
+    },
+  }
+}
+
+const makeMutableDefaultOptions = <T extends NotionPropertyTypeEnum>(type: T) => {
+  const valueToRaw: NotionMutablePropertyDefinition<T, ValueType<T>> = {
+    type,
+    handler: value => value,
+    composer: value => value
+  }
+  return {
+    raw(): NotionMutablePropertyDefinition<T, ValueType<T>> {
+      return valueToRaw;
+    },
+    rawWithDefault(defaultValue: NonNullable<ValueType<T>>): NotionMutablePropertyDefinition<T, NonNullable<ValueType<T>>> {
+      return {
+        type,
+        handler: value => value ?? defaultValue,
+        composer: value => value
+      }
+    },
+    handleAndComposeUsing<R>({ handler, composer }: { handler: ValueHandler<T, R>, composer: ValueComposer<R> }): NotionMutablePropertyDefinition<T, R> {
+      return {
+        type,
+        handler,
+        composer
+      }
     }
   }
-})
+}
 
 export function __id() {
   return '__id' as const;
 }
 
-const checkboxConfig: NotionMutablePropertyDefinition<'checkbox', boolean> = {
-  type: 'checkbox',
-  handler: value => value.checkbox,
-  composer: (value) => value
-}
 const checkboxOptions = {
-  ...makeDefaultOptions('checkbox'),
-  boolean: () => checkboxConfig
+  ...makeMutableDefaultOptions('checkbox'),
+  boolean() {
+    return this.raw();
+  }
 }
 export function checkbox() {
   return checkboxOptions;
 }
 
-const createdByToName: NotionPropertyDefinition<'created_by', string> = {
-  type: 'created_by',
-  handler: value => 'name' in value.created_by ? value.created_by.name ?? '' : ''
-}
 const createdByOptions = {
   ...makeDefaultOptions('created_by'),
-  name: () => createdByToName
+  name() {
+    return this.handleUsing(value => 'name' in value ? value.name ?? '' : '')
+  }
 }
 export function created_by() {
   return createdByOptions;
 }
 
-const createdTimeToString: NotionPropertyDefinition<'created_time', string> = {
-  type: 'created_time',
-  handler: value => value.created_time
-}
 const createdTimeOptions = {
   ...makeDefaultOptions('created_time'),
-  timeString: () => createdTimeToString
+  timeString() {
+    return this.raw();
+  }
 }
 export function created_time() {
   return createdTimeOptions;
@@ -91,408 +113,373 @@ export type DateRange = {
   start: string
   end: string
 }
-const dateToDateRange: NotionMutablePropertyDefinition<'date', DateRange> = {
-  type: 'date',
-  handler: (value) => {
-    return {
-      start: value.date?.start ?? '',
-      end: value.date?.end ?? ''
-    }
-  },
-  composer: (value) => value
-}
 const dateOptions = {
-  ...makeDefaultOptions('date'),
-  dateRange: () => dateToDateRange
+  ...makeMutableDefaultOptions('date'),
+  dateRange() {
+    return this.handleAndComposeUsing({
+      handler: (value) => {
+        return {
+          start: value?.start ?? '',
+          end: value?.end ?? ''
+        }
+      },
+      composer: (value) => value
+    })
+  }
 }
 export function date() {
   return dateOptions;
 }
 
-const emailToString: NotionMutablePropertyDefinition<'email', string> = {
-  type: 'email',
-  handler: value => value.email ?? '',
-  composer: (value) => value
-}
 const emailOptions = {
-  ...makeDefaultOptions('email'),
-  string: () => emailToString
+  ...makeMutableDefaultOptions('email'),
+  string() {
+    return this.rawWithDefault('');
+  }
 }
 export function email() {
   return emailOptions;
 }
 
-const filesToUrls: NotionPropertyDefinition<'files', string[]> = {
-  type: 'files',
-  handler: (value) => value.files.reduce((acc, file) => {
-    let result: string | undefined = undefined;
-    if ('file' in file) {
-      result = file.file.url;
-    } else if ('external' in file) {
-      result = file.external.url;
-    }
-    if (result === undefined) {
-      return acc;
-    }
-    return acc.concat(result);
-  }, [] as string[])
-}
-const filesToSingleUrl: NotionPropertyDefinition<'files', string> = {
-  type: 'files',
-  handler: (value) => {
-    const file = value.files[0];
-    if (!file) {
-      return '';
-    }
-    if ('file' in file) {
-      return file.file.url;
-    } else if ('external' in file) {
-      return file.external.url;
-    }
-    return '';
-  }
-}
-const filesToNotionImageUrls: NotionPropertyDefinition<'files', string[]> = {
-  type: 'files',
-  handler: (value, option, pageId) => value.files.reduce((acc, file) => {
-    let result: string | undefined = undefined;
-    if ('file' in file) {
-      result = convertNotionImage(pageId, file.file.url);
-    }
-    if (result === undefined) {
-      return acc;
-    }
-    return acc.concat(result);
-  }, [] as string[])
-}
-const filesToSingleNotionImageUrl: NotionPropertyDefinition<'files', string> = {
-  type: 'files',
-  handler: (value, option, pageId) => {
-    const file = value.files[0];
-    if (!file) {
-      return '';
-    }
-    if ('file' in file) {
-      return convertNotionImage(pageId, file.file.url);
-    }
-    return '';
-  }
-}
 const filesOptions = {
   ...makeDefaultOptions('files'),
-  urls: () => filesToUrls,
-  singleUrl: () => filesToSingleUrl,
-  notionImageUrls: () => filesToNotionImageUrls,
-  singleNotionImageUrl: () => filesToSingleNotionImageUrl
+  urls() {
+    return this.handleUsing((value) => value.reduce((acc, file) => {
+      let result: string | undefined = undefined;
+      if ('file' in file) {
+        result = file.file.url;
+      } else if ('external' in file) {
+        result = file.external.url;
+      }
+      if (result === undefined) {
+        return acc;
+      }
+      return acc.concat(result);
+    }, [] as string[]))
+  },
+  singleUrl() {
+    return this.handleUsing((value) => {
+      const file = value[0];
+      if (!file) {
+        return '';
+      }
+      if ('file' in file) {
+        return file.file.url;
+      } else if ('external' in file) {
+        return file.external.url;
+      }
+      return '';
+    })
+  },
+  notionImageUrls() {
+    return this.handleUsing((value, option, pageId) => value.reduce((acc, file) => {
+      let result: string | undefined = undefined;
+      if ('file' in file) {
+        result = convertNotionImage(pageId, file.file.url);
+      }
+      if (result === undefined) {
+        return acc;
+      }
+      return acc.concat(result);
+    }, [] as string[]))
+  },
+  singleNotionImageUrl() {
+    return this.handleUsing((value, option, pageId) => {
+      const file = value[0];
+      if (!file) {
+        return '';
+      }
+      if ('file' in file) {
+        return convertNotionImage(pageId, file.file.url);
+      }
+      return '';
+    })
+  }
 }
 export function files() {
   return filesOptions;
 }
 
-const formulaToString: NotionPropertyDefinition<'formula', string> = {
-  type: 'formula',
-  handler: value => {
-    if (value.formula.type === 'string') {
-      return value.formula.string ?? '';
-    } else if (value.formula.type === 'number') {
-      return value.formula.number?.toString() ?? '';
-    } else if (value.formula.type === 'boolean') {
-      return value.formula.boolean ? 'true' : 'false';
-    } else if (value.formula.type === 'date') {
-      return value.formula.date?.start ?? '';
-    }
-    return '';
-  }
-}
-const formulaToBooleanDefaultFalse: NotionPropertyDefinition<'formula', boolean> = {
-  type: 'formula',
-  handler: value => value.formula.type === 'boolean' ? value.formula.boolean ?? false : false
-}
-const formulaToNumberDefaultZero: NotionPropertyDefinition<'formula', number> = {
-  type: 'formula',
-  handler: value => value.formula.type === 'number' ? value.formula.number ?? 0 : 0
-}
-const formulaToDateRange: NotionPropertyDefinition<'formula', DateRange> = {
-  type: 'formula',
-  handler: value => {
-    if (value.formula.type === 'date') {
-      return {
-        start: value.formula.date?.start ?? '',
-        end: value.formula.date?.end ?? ''
-      }
-    }
-    return {
-      start: '',
-      end: ''
-    }
-  }
-}
 const formulaOptions = {
   ...makeDefaultOptions('formula'),
-  string: () => formulaToString,
-  booleanDefaultFalse: () => formulaToBooleanDefaultFalse,
-  numberDefaultZero: () => formulaToNumberDefaultZero,
-  dateRange: () => formulaToDateRange
+  string() {
+    return this.handleUsing(value => {
+      if (value.type === 'string') {
+        return value.string ?? '';
+      } else if (value.type === 'number') {
+        return value.number?.toString() ?? '';
+      } else if (value.type === 'boolean') {
+        return value.boolean ? 'true' : 'false';
+      } else if (value.type === 'date') {
+        return value.date?.start ?? '';
+      }
+      return '';
+    })
+  },
+  booleanDefaultFalse() {
+    return this.handleUsing(value => value.type === 'boolean' ? value.boolean ?? false : false)
+  },
+  numberDefaultZero() {
+    return this.handleUsing(value => value.type === 'number' ? value.number ?? 0 : 0)
+  },
+  dateRange() {
+    return this.handleUsing(value => {
+      if (value.type === 'date') {
+        return {
+          start: value.date?.start ?? '',
+          end: value.date?.end ?? ''
+        }
+      }
+      return {
+        start: '',
+        end: ''
+      }
+    })
+  }
 }
 export function formula() {
   return formulaOptions;
 }
 
-const lastEditedByToName: NotionPropertyDefinition<'last_edited_by', string> = {
-  type: 'last_edited_by',
-  handler: value => 'name' in value.last_edited_by ? value.last_edited_by.name ?? '' : ''
-}
 const lastEditedByOptions = {
   ...makeDefaultOptions('last_edited_by'),
-  name: () => lastEditedByToName
+  name() {
+    return this.handleUsing(value => 'name' in value ? value.name ?? '' : '')
+  }
 }
 export function last_edited_by() {
   return lastEditedByOptions;
 }
 
-const lastEditedTimeToString: NotionPropertyDefinition<'last_edited_time', string> = {
-  type: 'last_edited_time',
-  handler: value => value.last_edited_time
-}
 const lastEditedTimeOptions = {
   ...makeDefaultOptions('last_edited_time'),
-  timeString: () => lastEditedTimeToString
+  timeString() {
+    return this.raw();
+  }
 }
 export function last_edited_time() {
   return lastEditedTimeOptions;
 }
 
-const multiSelectToNameStrings: NotionMutablePropertyDefinition<'multi_select', string[]> = {
-  type: 'multi_select',
-  handler: value => value.multi_select.map(option => option.name),
-  composer: (value) => value.map(name => ({ name }))
-}
 const multiSelectOptions = {
-  ...makeDefaultOptions('multi_select'),
-  strings: () => multiSelectToNameStrings,
-  stringEnums: <T extends string>(values: T[]): NotionPropertyDefinition<'multi_select', T> => {
-    return {
-      type: 'multi_select',
-      handler: (value: ValueType<'multi_select'>): T => {
-        const names = value.multi_select.map(option => option.name);
+  ...makeMutableDefaultOptions('multi_select'),
+  strings() {
+    return this.handleAndComposeUsing({
+      handler: (value) => value.map(option => option.name),
+      composer: (value) => value.map(name => ({ name }))
+    })
+  },
+  stringEnums<T extends string>(values: T[]) {
+    return this.handleAndComposeUsing({
+      handler: (value: ValueType<'multi_select'>): T[] => {
+        const names = value.map(option => option.name);
         if (!names.every(name => values.includes(name as T))) {
           throw Error('Invalid status');
         }
-        return names as any;
+        return names as T[];
+      },
+      composer: (value: T[]) => {
+        if (!value.every(name => values.includes(name))) {
+          throw Error('Invalid status');
+        }
+        return value.map(name => ({ name }));
       }
-    }
+    });
   }
 }
 export function multi_select() {
   return multiSelectOptions;
 }
 
-const numberToNumberDefaultZero: NotionMutablePropertyDefinition<'number', number> = {
-  type: 'number',
-  handler: value => value.number ?? 0,
-  composer: (value) => value
-}
-export function number() {
-  return {
-    ...makeDefaultOptions('number'),
-    numberDefaultZero: () => numberToNumberDefaultZero
+const numberOptions = {
+  ...makeMutableDefaultOptions('number'),
+  numberDefaultZero() {
+    return this.rawWithDefault(0);
   }
 }
-
-const peopleToNames: NotionMutablePropertyDefinition<'people', string[]> = {
-  type: 'people',
-  handler: value => value.people.reduce((acc, person) => {
-    if ('name' in person) {
-      return acc.concat(person.name ?? '');
-    }
-    return acc;
-  }, [] as string[]),
-  composer: (value) => value.map(name => ({ name }))
+export function number() {
+  return numberOptions;
 }
+
 const peopleOptions = {
   ...makeDefaultOptions('people'),
-  names: () => peopleToNames
+  names() {
+    return this.handleUsing(value => value.reduce((acc, person) => {
+      if ('name' in person) {
+        return acc.concat(person.name ?? '');
+      }
+      return acc;
+    }, [] as string[]))
+  }
 }
 export function people() {
   return peopleOptions;
 }
 
-const phoneNumberToString: NotionMutablePropertyDefinition<'phone_number', string> = {
-  type: 'phone_number',
-  handler: value => value.phone_number ?? '',
-  composer: (value) => value
-}
 const phoneNumberOptions = {
-  ...makeDefaultOptions('phone_number'),
-  string: () => phoneNumberToString
+  ...makeMutableDefaultOptions('phone_number'),
+  string() {
+    return this.rawWithDefault('');
+  }
 }
 export function phone_number() {
   return phoneNumberOptions;
 }
 
-const relationToIds: NotionMutablePropertyDefinition<'relation', string[]> = {
-  type: 'relation',
-  handler: value => value.relation.map(relation => relation.id),
-  composer: (value) => value.map(id => ({ id }))
-}
-const relationToSingleId: NotionMutablePropertyDefinition<'relation', string> = {
-  type: 'relation',
-  handler: value => value.relation[0].id ?? '',
-  composer: (value) => [{ id: value }]
-}
 const relationOptions = {
-  ...makeDefaultOptions('relation'),
-  ids: () => relationToIds,
-  singleId: () => relationToSingleId
+  ...makeMutableDefaultOptions('relation'),
+  ids() {
+    return this.handleAndComposeUsing({
+      handler: value => value.map(relation => relation.id),
+      composer: (value) => value.map(id => ({ id }))
+    });
+  },
+  singleId() {
+    return this.handleAndComposeUsing({
+      handler: value => value[0].id,
+      composer: (value) => [{ id: value }]
+    });
+  }
 }
 export function relation() {
   return relationOptions;
 }
 
-const richTextToPlainText: NotionMutablePropertyDefinition<'rich_text', string> = {
-  type: 'rich_text',
-  handler: value => packPlainText(value.rich_text),
-  composer: (value) => [{ text: { content: value } }]
-}
 const richTextOptions = {
-  ...makeDefaultOptions('rich_text'),
-  plainText: () => richTextToPlainText
+  ...makeMutableDefaultOptions('rich_text'),
+  plainText() {
+    return this.handleAndComposeUsing({
+      handler: value => packPlainText(value),
+      composer: (value) => [{ text: { content: value } }]
+    })
+  }
 }
 export function rich_text() {
   return richTextOptions;
 }
 
-const rollupToDateRange: NotionPropertyDefinition<'rollup', DateRange> = {
-  type: 'rollup',
-  handler: value => {
-    if (value.rollup.type === 'date') {
-      return {
-        start: value.rollup.date?.start ?? '',
-        end: value.rollup.date?.end ?? ''
-      }
-    }
-    return {
-      start: '',
-      end: ''
-    }
-  }
-}
-const rollupToNumberDefaultZero: NotionPropertyDefinition<'rollup', number> = {
-  type: 'rollup',
-  handler: value => {
-    if (value.rollup.type === 'number') {
-      return value.rollup.number ?? 0;
-    }
-    return 0;
-  }
-}
-export type RollupArrayType = Extract<ValueType<'rollup'>['rollup'], { type: 'array' }>['array']
+export type RollupArrayType = Extract<ValueType<'rollup'>, { type: 'array' }>['array']
 const rollupOptions = {
   ...makeDefaultOptions('rollup'),
-  dateRange: () => rollupToDateRange,
-  numberDefaultZero: () => rollupToNumberDefaultZero,
-  handleArrayUsing: <R>(handler: (value: RollupArrayType) => R): NotionPropertyDefinition<'rollup', R> => {
-    return {
-      type: 'rollup',
-      handler: (value: ValueType<'rollup'>): R => {
-        if (value.rollup.type === 'array') {
-          return handler(value.rollup.array);
+  dateRange() {
+    return this.handleUsing(value => {
+      if (value.type === 'date') {
+        return {
+          start: value.date?.start ?? '',
+          end: value.date?.end ?? ''
         }
-        throw Error('Invalid rollup type');
       }
-    }
+      return {
+        start: '',
+        end: ''
+      }
+    });
+  },
+  numberDefaultZero() {
+    return this.handleUsing(value => {
+      if (value.type === 'date') {
+        return {
+          start: value.date?.start ?? '',
+          end: value.date?.end ?? ''
+        }
+      }
+      return {
+        start: '',
+        end: ''
+      }
+    });
+  },
+  handleArrayUsing<R>(handler: (value: RollupArrayType) => R) {
+    return this.handleUsing(value => {
+      if (value.type === 'array') {
+        return handler(value.array);
+      }
+      throw Error('Invalid rollup type');
+    });
   }
 }
 export function rollup() {
   return rollupOptions;
 }
 
-const selectToNameString: NotionMutablePropertyDefinition<'select', string> = {
-  type: 'select',
-  handler: value => value.select?.name ?? '',
-  composer: (value) => ({ name: value })
-}
 const selectOptions = {
-  ...makeDefaultOptions('select'),
-  string: () => selectToNameString,
-  stringEnum: <T extends string>(values: T[]): NotionPropertyDefinition<'select', T> => {
-    return {
-      type: 'select',
-      handler: (value: ValueType<'select'>): T => {
-        const name = value.select?.name;
-        if (!name || !values.includes(name as T)) {
-          throw Error('Invalid status');
-        }
-        return name as T;
-      }
-    }
+  ...makeMutableDefaultOptions('select'),
+  string() {
+    return this.handleAndComposeUsing({
+      handler: value => value?.name ?? '',
+      composer: (value) => ({ name: value })
+    })
   },
-  optionalStringEnum: <T extends string>(values: T[]): NotionPropertyDefinition<'status', T | undefined> => {
-    return {
-      type: 'status',
-      handler: (value: ValueType<'status'>): T | undefined => {
-        const name = value.status?.name;
-        if (!name) {
-          return undefined;
-        }
+  stringEnum<T extends string | undefined>(values: readonly T[]) {
+    return this.handleAndComposeUsing({
+      handler: value => {
+        const name = value?.name;
         if (!values.includes(name as T)) {
-          throw Error('Invalid status');
+          throw Error('Invalid status: ' + name);
         }
         return name as T;
+      },
+      composer: (value) => {
+        if (!values.includes(value)) {
+          throw Error('Invalid status: ' + value);
+        }
+        return { name: value };
       }
-    }
-  }
+    });
+  },
 }
 export function select() {
   return selectOptions;
 }
 
-const statusToNameString: NotionMutablePropertyDefinition<'status', string> = {
-  type: 'status',
-  handler: value => value.status?.name ?? '',
-  composer: (value) => ({ name: value })
-}
 const statusOptions = {
-  ...makeDefaultOptions('status'),
-  string: () => statusToNameString,
-  stringEnum: <T extends string>(values: readonly T[]): NotionPropertyDefinition<'status', T> => {
-    return {
-      type: 'status',
-      handler: (value: ValueType<'status'>): T => {
-        const name = value.status?.name;
+  ...makeMutableDefaultOptions('status'),
+  string() {
+    return this.handleAndComposeUsing({
+      handler: value => value?.name ?? '',
+      composer: (value) => ({ name: value })
+    })
+  },
+  stringEnum<T extends string>(values: readonly T[]) {
+    return this.handleAndComposeUsing({
+      handler: value => {
+        const name = value?.name;
         if (!name || !values.includes(name as T)) {
           throw Error('Invalid status: ' + name);
         }
         return name as T;
+      },
+      composer: (value) => {
+        if (!value || !values.includes(value)) {
+          throw Error('Invalid status: ' + value);
+        }
+        return { name: value };
       }
-    }
+    });
   },
 }
 export function status() {
   return statusOptions;
 }
 
-const titleToPlainText: NotionMutablePropertyDefinition<'title', string> = {
-  type: 'title',
-  handler: value => packPlainText(value.title),
-  composer: (value) => [{ text: { content: value } }]
-}
 const titleOptions = {
-  ...makeDefaultOptions('title'),
-  plainText: () => titleToPlainText
+  ...makeMutableDefaultOptions('title'),
+  plainText() {
+    return this.handleAndComposeUsing({
+      handler: value => packPlainText(value),
+      composer: (value) => [{ text: { content: value } }]
+    })
+  }
 }
 export function title() {
   return titleOptions;
 }
 
-const urlToString: NotionMutablePropertyDefinition<'url', string> = {
-  type: 'url',
-  handler: value => value.url ?? '',
-  composer: (value) => value
-}
 const urlOptions = {
-  ...makeDefaultOptions('url'),
-  string: () => urlToString
+  ...makeMutableDefaultOptions('url'),
+  string() {
+    return this.rawWithDefault('');
+  }
 }
 export function url() {
   return urlOptions;

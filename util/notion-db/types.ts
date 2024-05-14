@@ -8,7 +8,7 @@ export type NotionPropertyTypeEnum = PageObjectResponse['properties'][string]['t
 export type NotionPageContent = Array<PartialBlockObjectResponse | BlockObjectResponse>;
 
 export type ValueType<T extends NotionPropertyTypeEnum> =
-  Extract<PageObjectResponse['properties'][string], { type: T }>;
+  Extract<PageObjectResponse['properties'][string], { type: T }> extends { [K in T]: infer R } ? R : never;
 export type ValueHandler<T extends NotionPropertyTypeEnum, R = any> = (value: ValueType<T>, option: string, pageId: string) => R;
 export type ValueComposer<R = any> = (value: R) => any;
 

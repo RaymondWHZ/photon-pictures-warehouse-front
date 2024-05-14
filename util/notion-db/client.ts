@@ -33,10 +33,12 @@ function processRow<T extends DBSchemaType>(
     if (!(name in result.properties)) {
       throw Error(`Property ${name} is not found`);
     }
-    const value = result.properties[name] as ValueType<typeof type>;
-    if (value.type !== type) {
-      throw Error(`Property ${name} type mismatch: ${value.type} !== ${type}`);
+    const property = result.properties[name];
+    if (property.type !== type) {
+      throw Error(`Property ${name} type mismatch: ${property.type} !== ${type}`);
     }
+    // @ts-ignore
+    const value: ValueType<typeof type> = property[type];
     const handler = def.handler as ValueHandler<typeof type>;
     transformedResult[key] = handler(value, option ?? '', result.id);
   }
