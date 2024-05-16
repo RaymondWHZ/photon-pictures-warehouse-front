@@ -63,7 +63,7 @@ const CardGrid: React.FC<{ kits?: KitOverview[] }> = ({ kits }) => {
         kits ?
         kits.map((kit: KitOverview) => (
           <Col key={kit._id} span={24} md={12} lg={8} style={{ display: "flex", justifyContent: "center" }}>
-            <KitCard kit={kit} disabled={kit.status == "unavailable"}/>
+            <KitCard kit={kit} disabled={kit.status == "inactive"}/>
           </Col>
         ))
         :

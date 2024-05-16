@@ -11,22 +11,22 @@ const dbSchemas  = createDBSchemas({
   },
   kits__overview: {
     _id: __id(),
-    tags: multi_select().stringEnums(['audio', 'lighting', 'video']),
+    tags: multi_select().stringEnums('audio', 'lighting', 'video'),
     name: title().plainText(),
     description: rich_text().plainText(),
     cover: files().singleNotionImageUrl(),
-    status: status().stringEnum(['active', 'inactive']),
+    status: status().stringEnum('active', 'inactive'),
     current_record_status: formula().string(),
   },
   kits: {
     _id: __id(),
-    tags: multi_select().stringEnums(['audio', 'lighting', 'video']),
+    tags: multi_select().stringEnums('audio', 'lighting', 'video'),
     name: title().plainText(),
     description: rich_text().plainText(),
     cover: files().singleNotionImageUrl(),
     images: files().notionImageUrls(),
     value: number().numberDefaultZero(),
-    status: status().stringEnum(['active', 'inactive']),
+    status: status().stringEnum('active', 'inactive'),
     current_record_status: formula().string(),
     record_dates: rollup().handleArrayUsing((value): DateRange[] => {
       return value.reduce((acc, item) => {
@@ -64,6 +64,8 @@ const dbSchemas  = createDBSchemas({
 type DBObjectTypes = DBObjectTypesInfer<typeof dbSchemas>
 export type KitOverview = DBObjectTypes['kits__overview']
 export type Kit = DBObjectTypes['kits']
+export type KitStatus = Kit['status']
+export type KitTag = Kit['tags'][number]
 
 const client = createNotionDBClient({
   notionToken: process.env.NOTION_TOKEN!,

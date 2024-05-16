@@ -269,7 +269,7 @@ const multiSelectOptions = {
       composer: (value) => value.map(name => ({ name }))
     })
   },
-  stringEnums<T extends string>(values: T[]) {
+  stringEnums<T extends string>(...values: T[]) {
     return this.handleAndComposeUsing({
       handler: value => {
         const names = value.map(option => option.name);
@@ -410,7 +410,7 @@ const selectOptions = {
       composer: (value) => ({ name: value })
     })
   },
-  stringEnum<T extends string | undefined>(values: T[]) {
+  stringEnum<T extends string | undefined>(...values: T[]) {
     return this.handleAndComposeUsing({
       handler: value => {
         const name = value?.name;
@@ -440,7 +440,7 @@ const statusOptions = {
       composer: (value) => ({ name: value })
     })
   },
-  stringEnum<T extends string>(values: T[]) {
+  stringEnum<T extends string>(...values: T[]) {
     return this.handleAndComposeUsing({
       handler: value => {
         const name = value?.name;
@@ -449,7 +449,7 @@ const statusOptions = {
         }
         return name as T;
       },
-      composer: value => {
+      composer: (value: T) => {
         if (!value || !values.includes(value)) {
           throw Error('Invalid status: ' + value);
         }
