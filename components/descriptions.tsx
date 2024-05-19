@@ -5,7 +5,7 @@ import Meta from "antd/lib/card/Meta";
 import {KitStatusTag, KitTypeTag} from "./tags";
 import {Kit} from "../util/data-client";
 import {NotionPageContentRenderer} from "./text";
-import {TypeWithContent} from "../util/notion-db";
+import {TypeWithContent} from "notion-cms-adaptor";
 
 export interface DescriptionCardProps extends React.ComponentProps<typeof Card> {
   kit?: TypeWithContent<Kit, 'content'>

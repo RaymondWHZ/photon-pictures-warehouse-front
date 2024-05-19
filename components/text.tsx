@@ -1,5 +1,5 @@
 import React from "react";
-import type {NotionPageContent} from "../util/notion-db";
+import type {NotionPageContent} from "notion-cms-adaptor";
 import {Render} from "@9gustin/react-notion-render";
 
 interface NotionPageContentRendererProps {

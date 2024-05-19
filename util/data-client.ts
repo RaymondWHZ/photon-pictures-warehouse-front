@@ -3,11 +3,11 @@ import {
   createNotionDBClient, date, status,
   DBObjectTypesInfer, NotionPageContent, relation, rich_text, title,
   TypeWithContent, number, multi_select, __id, files, formula, email, rollup, DateRange, unique_id
-} from "./notion-db";
+} from "notion-cms-adaptor";
 
 const dbSchemas  = createDBSchemas({
   texts: {
-    name: title().plainText()
+    name: title().plainText(),
   },
   kits__overview: {
     _id: __id(),

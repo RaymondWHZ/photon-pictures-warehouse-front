@@ -1,7 +1,7 @@
 import useSWR from "swr";
 import axios, {AxiosResponse} from "axios";
 import {Kit, KitOverview, ReservationInfo} from "./data-client";
-import {TypeWithContent} from "./notion-db";
+import {TypeWithContent} from "notion-cms-adaptor";
 
 export const useAllKits = () => {
   const { data, error } = useSWR<AxiosResponse<{ kits: KitOverview[] }>>(`/api/kits`, axios.get)

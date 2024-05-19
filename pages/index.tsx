@@ -5,7 +5,7 @@ import React from "react";
 import styles from "./index.module.css"
 import {fetchManual} from "../util/data-client";
 import {NextPage} from "next";
-import type {NotionPageContent} from "../util/notion-db";
+import type {NotionPageContent} from "notion-cms-adaptor";
 import {NotionPageContentRenderer} from "../components/text";
 
 export async function getStaticProps() {

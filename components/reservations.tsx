@@ -4,7 +4,7 @@ import moment from "moment";
 import {sendReservation} from "../util/services";
 import TextArea from "antd/lib/input/TextArea";
 import {Kit} from "../util/data-client";
-import {DateRange} from "../util/notion-db";
+import {DateRange} from "notion-cms-adaptor";
 
 const SubTitle: React.FC<PropsWithChildren> = ({ children }) => (
   <span style={{ fontSize: "15px", fontWeight: "bold", marginBottom: "12px" }}>

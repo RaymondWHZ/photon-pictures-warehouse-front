@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import {fetchKitAndReservations, Kit} from "../../util/data-client";
-import {TypeWithContent} from "../../util/notion-db";
+import {TypeWithContent} from "notion-cms-adaptor";
 
 type Data = {
   kit: TypeWithContent<Kit, 'content'>,
